@@ -342,197 +342,151 @@
 // ============ FIREBASE CONFIG ============
 const FIREBASE_URL = 'https://padel-tracker-deeaf-default-rtdb.europe-west1.firebasedatabase.app';
 
-// ── Firebase REST helpers ─────────────────────────────────────────────────
 async function fbGet(path){
-  const r = await fetch(FIREBASE_URL+path+'.json');
-  return r.ok ? r.json() : null;
+  try{const r=await fetch(FIREBASE_URL+path+'.json');return r.ok?r.json():null;}catch(e){return null;}
 }
-async function fbSet(path, data){
-  await fetch(FIREBASE_URL+path+'.json', {
-    method:'PUT', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(data)
-  });
-}
-async function fbPush(path, data){
-  const r = await fetch(FIREBASE_URL+path+'.json', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(data)
-  });
-  return r.ok ? (await r.json()).name : null;
-}
-async function fbDelete(path){
-  await fetch(FIREBASE_URL+path+'.json', {method:'DELETE'});
+async function fbSet(path,data){
+  try{await fetch(FIREBASE_URL+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch(e){}
 }
 
-// ── Real-time listener via SSE ────────────────────────────────────────────
-let sseSource = null;
+let sseSource=null;
 function startRealtimeSync(){
   if(sseSource) sseSource.close();
-  sseSource = new EventSource(FIREBASE_URL+'/state.json');
-  sseSource.addEventListener('put', e=>{
-    try {
-      const payload = JSON.parse(e.data);
-      if(payload.data){
-        state = normaliseState(payload.data);
-        renderAll();
-      }
-    } catch(err){}
-  });
-  sseSource.onerror = ()=>{
-    // silently reconnect after 5s
-    setTimeout(startRealtimeSync, 5000);
-  };
+  try{
+    sseSource=new EventSource(FIREBASE_URL+'/state.json');
+    sseSource.addEventListener('put',e=>{
+      try{
+        const payload=JSON.parse(e.data);
+        if(payload&&payload.data){state=normaliseState(payload.data);renderAll();}
+      }catch(err){}
+    });
+    sseSource.onerror=()=>{sseSource.close();setTimeout(startRealtimeSync,5000);};
+  }catch(e){}
 }
 
 // ============ DATA ============
-const ALL_PLAYERS = ['Achraf','Ashraf','Bassem','Rafic','Karim A','Hazem','Tarek','Karim H','Salama'];
+const ALL_PLAYERS=['Achraf','Ashraf','Bassem','Rafic','Karim A','Hazem','Tarek','Karim H','Salama'];
 
-const DEFAULT_STATE = {
-  players: [...ALL_PLAYERS],
-  bulks: [
-    {
-      id: 'bulk01',
-      date: '2026-03-27',
-      totalTickets: 72,
-      totalCost: 260,
-      payers: {'Achraf':66,'Ashraf':66,'Bassem':66,'Rafic':66},
-      ticketPrice: 260/72
-    }
-  ],
-  sessions: [
+const DEFAULT_STATE={
+  players:[...ALL_PLAYERS],
+  bulks:[{id:'bulk01',date:'2026-03-27',totalTickets:72,totalCost:260,payers:{'Achraf':66,'Ashraf':66,'Bassem':66,'Rafic':66},ticketPrice:260/72}],
+  sessions:[
     {id:'sess01',date:'2026-03-28',hours:2,tickets:16,players:['Achraf','Bassem'],perPlayer:14.44},
     {id:'sess02',date:'2026-04-04',hours:2,tickets:16,players:['Achraf','Bassem','Rafic'],perPlayer:14.44},
     {id:'sess03',date:'2026-04-11',hours:2,tickets:16,players:['Achraf','Ashraf','Karim A'],perPlayer:11.55},
     {id:'sess04',date:'2026-04-18',hours:2,tickets:16,players:['Achraf','Ashraf','Bassem','Karim A'],perPlayer:14.44}
   ],
-  topups: [
-    {id:'topup01',date:'2026-05-30',player:'Achraf',amount:60,note:'Monthly May'}
-  ]
+  topups:[{id:'topup01',date:'2026-05-30',player:'Achraf',amount:60,note:'Monthly May'}]
 };
 
-let state = normaliseState(DEFAULT_STATE);
-let isSyncing = false;
-
-function b36(){return Math.random().toString(36).slice(2,9)}
-
-// Ensure arrays exist and ids are strings (Firebase strips arrays → objects)
+// ── MUST be defined before any call to normaliseState ─────────────────────
 function normaliseState(raw){
   if(!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
-  const s = JSON.parse(JSON.stringify(raw));
-  // Firebase stores arrays as objects keyed by index or push key — normalise to arrays
-  const toArr = v => {
-    if(!v) return [];
-    if(Array.isArray(v)) return v.filter(Boolean);
-    return Object.values(v).filter(Boolean);
-  };
-  s.players  = toArr(s.players).filter(p=>typeof p==='string');
-  s.bulks    = toArr(s.bulks);
-  s.sessions = toArr(s.sessions);
-  s.topups   = toArr(s.topups);
-  // Ensure every bulk has ticketPrice
-  s.bulks = s.bulks.map(b=>({...b, ticketPrice: b.ticketPrice || b.totalCost/b.totalTickets}));
+  const s=JSON.parse(JSON.stringify(raw));
+  const toArr=v=>{if(!v)return[];if(Array.isArray(v))return v.filter(Boolean);return Object.values(v).filter(Boolean);};
+  s.players =toArr(s.players).filter(p=>typeof p==='string');
+  s.bulks   =toArr(s.bulks);
+  s.sessions=toArr(s.sessions);
+  s.topups  =toArr(s.topups);
+  s.bulks=s.bulks.map(b=>({...b,ticketPrice:b.ticketPrice||b.totalCost/b.totalTickets}));
   return s;
 }
 
+// Now safe to initialise state
+let state=normaliseState(DEFAULT_STATE);
+let isSyncing=false;
+
+function b36(){return Math.random().toString(36).slice(2,9)}
+
 async function saveState(){
-  if(isSyncing) return;
-  isSyncing = true;
-  try { await fbSet('/state', state); }
-  catch(e){ showToast('Sync error — check connection'); }
-  finally { isSyncing = false; }
+  if(isSyncing)return;
+  isSyncing=true;
+  try{await fbSet('/state',state);}
+  catch(e){showToast('Sync error');}
+  finally{isSyncing=false;}
 }
 
-// ── Init: load from Firebase, seed if empty, start live sync ─────────────
+function showLoading(on){
+  document.getElementById('loadingOverlay').style.display=on?'flex':'none';
+}
+
 async function initApp(){
   showLoading(true);
-  try {
-    const remote = await fbGet('/state');
-    if(remote && (remote.sessions?.length || (Array.isArray(remote.sessions) && remote.sessions.length) || Object.keys(remote.sessions||{}).length)){
-      state = normaliseState(remote);
+  try{
+    const remote=await fbGet('/state');
+    if(remote&&(toArrLen(remote.sessions)>0||toArrLen(remote.bulks)>0)){
+      state=normaliseState(remote);
     } else {
-      // First run — seed with default data
-      await fbSet('/state', DEFAULT_STATE);
-      state = normaliseState(DEFAULT_STATE);
+      await fbSet('/state',DEFAULT_STATE);
+      state=normaliseState(DEFAULT_STATE);
     }
-  } catch(e){
-    showToast('Offline — showing local data');
-  }
+  }catch(e){showToast('Offline — showing default data');}
   showLoading(false);
   renderAll();
   startRealtimeSync();
 }
 
-function showLoading(on){
-  document.getElementById('loadingOverlay').style.display = on ? 'flex' : 'none';
+function toArrLen(v){
+  if(!v)return 0;
+  if(Array.isArray(v))return v.filter(Boolean).length;
+  return Object.keys(v).length;
 }
 
-// ============ TICKET POOL (cumulative across all bulks) ============
+// ============ TICKET POOL ============
 function totalTicketsPurchased(){return state.bulks.reduce((s,b)=>s+b.totalTickets,0)}
 function totalTicketsUsed(){return state.sessions.reduce((s,sess)=>s+sess.tickets,0)}
 function ticketsRemaining(){return Math.max(0,totalTicketsPurchased()-totalTicketsUsed())}
 function latestTicketPrice(){
-  if(!state.bulks.length) return 0;
-  const sorted=[...state.bulks].sort((a,b)=>a.date.localeCompare(b.date));
-  return sorted[sorted.length-1].ticketPrice;
+  if(!state.bulks.length)return 0;
+  return [...state.bulks].sort((a,b)=>a.date.localeCompare(b.date)).slice(-1)[0].ticketPrice;
 }
 function currentTicketPrice(){return latestTicketPrice()}
 
 // ============ POCKET ============
-function pocketTotalTopups(){return (state.topups||[]).reduce((s,t)=>s+t.amount,0)}
+function pocketTotalTopups(){return(state.topups||[]).reduce((s,t)=>s+t.amount,0)}
 function pocketTotalBulkCosts(){return state.bulks.reduce((s,b)=>s+b.totalCost,0)}
-function pocketTotalBulkPaid(){
-  return state.bulks.reduce((s,b)=>s+Object.values(b.payers).reduce((a,v)=>a+v,0),0);
-}
-function pocketBalance(){
-  return pocketTotalBulkPaid()+pocketTotalTopups()-pocketTotalBulkCosts();
-}
+function pocketTotalBulkPaid(){return state.bulks.reduce((s,b)=>s+Object.values(b.payers).reduce((a,v)=>a+v,0),0)}
+function pocketBalance(){return pocketTotalBulkPaid()+pocketTotalTopups()-pocketTotalBulkCosts()}
 function pocketTotalIn(){return pocketTotalBulkPaid()+pocketTotalTopups()}
 function playerPocketContribution(player){
-  const fromBulks  = state.bulks.reduce((s,b)=>s+(b.payers[player]||0),0);
-  const fromTopups = (state.topups||[]).filter(t=>t.player===player).reduce((s,t)=>s+t.amount,0);
-  const consumed   = state.sessions.filter(sess=>sess.players.includes(player)).reduce((s,sess)=>s+sess.perPlayer,0);
-  const contributed = fromBulks+fromTopups;
-  return {fromBulks,fromTopups,contributed,consumed,net:contributed-consumed};
+  const fromBulks =state.bulks.reduce((s,b)=>s+(b.payers[player]||0),0);
+  const fromTopups=(state.topups||[]).filter(t=>t.player===player).reduce((s,t)=>s+t.amount,0);
+  const consumed  =state.sessions.filter(sess=>sess.players.includes(player)).reduce((s,sess)=>s+sess.perPlayer,0);
+  return{fromBulks,fromTopups,contributed:fromBulks+fromTopups,consumed,net:fromBulks+fromTopups-consumed};
 }
 
 // ============ HELPERS ============
-function fmt(n){return '€'+Math.abs(n).toFixed(2)}
+function fmt(n){return'€'+Math.abs(n).toFixed(2)}
 function fmtDate(s){
-  if(!s)return '';
-  const d=new Date(s+'T00:00:00');
-  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  if(!s)return'';
+  return new Date(s+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 }
 function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
 function avatarColor(name){
-  const colors=[
-    {bg:'#e8f5ee',c:'#1a7a4a'},{bg:'#e8f2fc',c:'#1a5fa0'},
-    {bg:'#fef3e2',c:'#b8620a'},{bg:'#fdecea',c:'#c0392b'},
-    {bg:'#f0eef8',c:'#6c40b5'},{bg:'#e8f5f0',c:'#0f7060'},
-    {bg:'#fceef5',c:'#b52060'},{bg:'#f5f0e8',c:'#7a5a1a'},
-    {bg:'#eef5f8',c:'#1a6080'}
-  ];
-  let h=0; for(const c of name) h=(h*31+c.charCodeAt(0))&0xffff;
+  const colors=[{bg:'#e8f5ee',c:'#1a7a4a'},{bg:'#e8f2fc',c:'#1a5fa0'},{bg:'#fef3e2',c:'#b8620a'},
+    {bg:'#fdecea',c:'#c0392b'},{bg:'#f0eef8',c:'#6c40b5'},{bg:'#e8f5f0',c:'#0f7060'},
+    {bg:'#fceef5',c:'#b52060'},{bg:'#f5f0e8',c:'#7a5a1a'},{bg:'#eef5f8',c:'#1a6080'}];
+  let h=0;for(const c of name)h=(h*31+c.charCodeAt(0))&0xffff;
   return colors[h%colors.length];
 }
 function todayStr(){return new Date().toISOString().split('T')[0]}
 
 // ============ RENDER: DASHBOARD ============
 function renderDashboard(){
-  const used=totalTicketsUsed(), purchased=totalTicketsPurchased(), rem=ticketsRemaining();
-  const pct=purchased?Math.round(used/purchased*100):0;
-  const price=latestTicketPrice();
+  const used=totalTicketsUsed(),purchased=totalTicketsPurchased(),rem=ticketsRemaining();
+  const pct=purchased?Math.round(used/purchased*100):0,price=latestTicketPrice();
 
   document.getElementById('bulkSummary').innerHTML=purchased?`
     <div class="bulk-highlight" style="margin-bottom:14px">
       <div class="bulk-title">Ticket pool · ${state.bulks.length} bulk${state.bulks.length>1?'s':''} total</div>
       <div class="bulk-val">${rem} <span style="font-size:18px;font-weight:400;opacity:.8">tickets left</span></div>
-      <div class="bulk-sub">${used} used of ${purchased} total · €${price.toFixed(2)}/ticket</div>
+      <div class="bulk-sub">${used} used of ${purchased} · €${price.toFixed(2)}/ticket</div>
       <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
     </div>
   `:'<div class="card" style="text-align:center;color:var(--text3);padding:20px">No bulk purchases yet</div>';
 
-  const bal=pocketBalance(), totalIn=pocketTotalIn();
-  const bulkCosts=pocketTotalBulkCosts(), topups=pocketTotalTopups(), bulkPaid=pocketTotalBulkPaid();
+  const bal=pocketBalance(),totalIn=pocketTotalIn();
+  const bulkCosts=pocketTotalBulkCosts(),topups=pocketTotalTopups(),bulkPaid=pocketTotalBulkPaid();
   const lastBulk=state.bulks.length?[...state.bulks].sort((a,b)=>a.date.localeCompare(b.date)).slice(-1)[0]:null;
   const nextBulkCost=lastBulk?lastBulk.totalCost:260;
   const pocketPct=nextBulkCost>0?Math.min(100,Math.max(0,Math.round(bal/nextBulkCost*100))):0;
@@ -553,9 +507,7 @@ function renderDashboard(){
           <div style="font-size:18px;font-weight:600;color:${bal>=0?'var(--green)':'var(--danger)'}">€${bal.toFixed(0)}</div>
         </div>
       </div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:6px">
-        Savings toward next bulk (est. €${nextBulkCost.toFixed(0)}) · ${pocketPct}%
-      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Savings toward next bulk (est. €${nextBulkCost.toFixed(0)}) · ${pocketPct}%</div>
       <div style="background:var(--border);border-radius:10px;height:8px;margin-bottom:10px">
         <div style="background:var(--green);border-radius:10px;height:8px;width:${pocketPct}%;transition:.4s"></div>
       </div>
@@ -566,18 +518,17 @@ function renderDashboard(){
         </div>
         <button class="btn-sm" onclick="openTopupModal()"><i class="ti ti-history" style="font-size:14px;vertical-align:-2px"></i> History</button>
       </div>
-    </div>
-  `;
+    </div>`;
 
   document.getElementById('pocketPlayerList').innerHTML=state.players.map(p=>{
-    const c=playerPocketContribution(p), av=avatarColor(p);
+    const c=playerPocketContribution(p),av=avatarColor(p);
     const netCol=c.net>0.01?'var(--green)':c.net<-0.01?'var(--danger)':'var(--text3)';
     const netLabel=c.net>0.01?'+€'+c.net.toFixed(2):c.net<-0.01?'-€'+Math.abs(c.net).toFixed(2):'settled';
     const parts=[];
-    if(c.fromBulks>0)  parts.push('bulk €'+c.fromBulks.toFixed(2));
-    if(c.fromTopups>0) parts.push('top-ups €'+c.fromTopups.toFixed(2));
-    if(c.consumed>0)   parts.push('played €'+c.consumed.toFixed(2));
-    return '<div class="player-row">'
+    if(c.fromBulks>0)parts.push('bulk €'+c.fromBulks.toFixed(2));
+    if(c.fromTopups>0)parts.push('top-ups €'+c.fromTopups.toFixed(2));
+    if(c.consumed>0)parts.push('played €'+c.consumed.toFixed(2));
+    return'<div class="player-row">'
       +'<div class="avatar" style="background:'+av.bg+';color:'+av.c+'">'+initials(p)+'</div>'
       +'<div style="flex:1;min-width:0"><div class="player-name">'+p+'</div>'
       +'<div class="player-detail">'+(parts.join(' · ')||'no activity')+'</div></div>'
@@ -586,14 +537,14 @@ function renderDashboard(){
   }).join('');
 
   document.getElementById('balanceList').innerHTML=state.players.map(p=>{
-    const c=playerPocketContribution(p), av=avatarColor(p);
+    const c=playerPocketContribution(p),av=avatarColor(p);
     const col=c.net>0.01?'chip-green':c.net<-0.01?'chip-danger':'chip-gray';
     const label=c.net>0.01?'+'+fmt(c.net)+' credit':c.net<-0.01?'owes '+fmt(c.net):'settled';
     const parts=[];
-    if(c.consumed>0)   parts.push('played €'+c.consumed.toFixed(2));
-    if(c.fromBulks>0)  parts.push('bulk €'+c.fromBulks.toFixed(2));
-    if(c.fromTopups>0) parts.push('top-ups €'+c.fromTopups.toFixed(2));
-    return '<div class="player-row">'
+    if(c.consumed>0)parts.push('played €'+c.consumed.toFixed(2));
+    if(c.fromBulks>0)parts.push('bulk €'+c.fromBulks.toFixed(2));
+    if(c.fromTopups>0)parts.push('top-ups €'+c.fromTopups.toFixed(2));
+    return'<div class="player-row">'
       +'<div class="avatar" style="background:'+av.bg+';color:'+av.c+'">'+initials(p)+'</div>'
       +'<div style="flex:1;min-width:0"><div class="player-name">'+p+'</div>'
       +'<div class="player-detail">'+(parts.join(' · ')||'no activity')+'</div></div>'
@@ -608,7 +559,6 @@ function renderDashboard(){
     +'<div class="metric"><div class="metric-label">Hours on court</div><div class="metric-val">'+totalHours+'h</div></div>'
     +'<div class="metric"><div class="metric-label">Tickets remaining</div><div class="metric-val green">'+rem+'</div></div>'
     +'<div class="metric"><div class="metric-label">Total consumed</div><div class="metric-val">€'+totalSpent.toFixed(0)+'</div></div>';
-
   document.getElementById('ticketRemaining').textContent=rem;
 }
 
@@ -616,25 +566,18 @@ function renderDashboard(){
 function renderSessions(){
   const sl=document.getElementById('sessionList');
   if(!state.sessions.length){
-    sl.innerHTML='<div class="empty"><i class="ti ti-calendar-off"></i><div class="empty-text">No sessions yet. Record your first game!</div></div>';
+    sl.innerHTML='<div class="empty"><i class="ti ti-calendar-off"></i><div class="empty-text">No sessions yet!</div></div>';
     return;
   }
-  const sorted=[...state.sessions].sort((a,b)=>b.date.localeCompare(a.date));
-  sl.innerHTML=sorted.map(s=>`
+  sl.innerHTML=[...state.sessions].sort((a,b)=>b.date.localeCompare(a.date)).map(s=>`
     <div class="session-card" onclick="openSession('${s.id}')">
       <div class="session-header">
-        <div>
-          <div class="session-date">${fmtDate(s.date)}</div>
-          <div class="session-meta">${s.hours}h · ${s.tickets} tickets · ${s.players.length} players</div>
-        </div>
-        <div class="session-cost">
-          <div class="session-total">€${s.perPlayer.toFixed(2)}</div>
-          <div class="session-per">per player</div>
-        </div>
+        <div><div class="session-date">${fmtDate(s.date)}</div>
+        <div class="session-meta">${s.hours}h · ${s.tickets} tickets · ${s.players.length} players</div></div>
+        <div class="session-cost"><div class="session-total">€${s.perPlayer.toFixed(2)}</div><div class="session-per">per player</div></div>
       </div>
       <div class="players-chips">${s.players.map(p=>'<span class="player-chip">'+p+'</span>').join('')}</div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 // ============ RENDER: ADD PANEL ============
@@ -642,85 +585,68 @@ function renderAdd(){
   document.getElementById('sessionPlayers').innerHTML=state.players.map(p=>`
     <label class="pcheck" onclick="togglePlayer(this,'${p}','sp')">
       <input type="checkbox" value="${p}" class="sp-check">
-      <div class="pcheck-dot"></div>
-      <span class="pcheck-name">${p}</span>
-    </label>
-  `).join('');
-
+      <div class="pcheck-dot"></div><span class="pcheck-name">${p}</span>
+    </label>`).join('');
   document.getElementById('bulkPayers').innerHTML=state.players.map(p=>`
     <label class="pcheck" onclick="togglePlayer(this,'${p}','bp')">
       <input type="checkbox" value="${p}" class="bp-check">
-      <div class="pcheck-dot"></div>
-      <span class="pcheck-name">${p}</span>
-    </label>
-  `).join('');
-
+      <div class="pcheck-dot"></div><span class="pcheck-name">${p}</span>
+    </label>`).join('');
   const today=todayStr();
   document.getElementById('sessionDate').value=today;
   document.getElementById('bulkDate').value=today;
   document.getElementById('topupDate').value=today;
   document.getElementById('topupPlayer').innerHTML=state.players.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
   document.getElementById('ticketPoolInfo').innerHTML=ticketsRemaining()+' tickets in pool · €'+latestTicketPrice().toFixed(2)+' each';
-  updateSessionPreview();
-  updateBulkAmounts();
-  updateBulkPreview();
+  updateSessionPreview();updateBulkAmounts();updateBulkPreview();
 }
 
 // ============ RENDER: PLAYERS ============
 function renderPlayers(){
   document.getElementById('playerDetailList').innerHTML=state.players.map(p=>{
-    const c=playerPocketContribution(p), av=avatarColor(p);
+    const c=playerPocketContribution(p),av=avatarColor(p);
     const netCol=c.net>=0?'var(--green)':'var(--danger)';
-    return '<div class="card-sm" style="display:flex;align-items:center;gap:12px">'
+    return'<div class="card-sm" style="display:flex;align-items:center;gap:12px">'
       +'<div class="avatar" style="background:'+av.bg+';color:'+av.c+'">'+initials(p)+'</div>'
       +'<div style="flex:1"><div style="font-weight:500;font-size:14px">'+p+'</div>'
       +'<div style="font-size:12px;color:var(--text3)">'+state.sessions.filter(s=>s.players.includes(p)).length+' sessions</div></div>'
-      +'<div style="text-align:right">'
-      +'<div style="font-size:13px;font-family:var(--mono);font-weight:500;color:'+netCol+'">'+(c.net>=0?'+':'')+'€'+c.net.toFixed(2)+'</div>'
+      +'<div style="text-align:right"><div style="font-size:13px;font-family:var(--mono);font-weight:500;color:'+netCol+'">'+(c.net>=0?'+':'')+'€'+c.net.toFixed(2)+'</div>'
       +'<div style="font-size:11px;color:var(--text3)">pocket net</div></div></div>';
   }).join('');
 }
 
 // ============ RENDER: BULK HISTORY ============
 function renderBulkHistory(){
-  const el=document.getElementById('bulkHistoryList');
-  if(!el)return;
-  if(!state.bulks.length){
-    el.innerHTML='<div class="empty" style="padding:20px 0"><i class="ti ti-shopping-cart-off"></i><div class="empty-text">No bulk purchases yet</div></div>';
-    return;
-  }
-  const sorted=[...state.bulks].sort((a,b)=>b.date.localeCompare(a.date));
-  el.innerHTML=sorted.map((b,i)=>{
+  const el=document.getElementById('bulkHistoryList');if(!el)return;
+  if(!state.bulks.length){el.innerHTML='<div class="empty" style="padding:20px 0"><i class="ti ti-shopping-cart-off"></i><div class="empty-text">No bulks yet</div></div>';return;}
+  el.innerHTML=[...state.bulks].sort((a,b)=>b.date.localeCompare(a.date)).map((b,i)=>{
     const payersText=Object.entries(b.payers).map(([p,v])=>p+' €'+v.toFixed(0)).join(' · ');
     const isLatest=i===0;
-    return '<div class="session-card" onclick="openBulkModal(\''+b.id+'\')" style="'+(isLatest?'border-color:var(--green);':'')+'\">'
+    return'<div class="session-card" onclick="openBulkModal(\''+b.id+'\')" style="'+(isLatest?'border-color:var(--green);':'')+'\">'
       +'<div class="session-header"><div>'
       +'<div class="session-date">'+fmtDate(b.date)+(isLatest?' <span style="font-size:11px;background:var(--green-light);color:var(--green);padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle">latest</span>':'')+'</div>'
       +'<div class="session-meta">'+b.totalTickets+' tickets · €'+b.totalCost.toFixed(2)+' · €'+b.ticketPrice.toFixed(2)+'/ticket</div>'
-      +'</div><div class="session-cost">'
-      +'<div class="session-total">€'+b.totalCost.toFixed(0)+'</div>'
+      +'</div><div class="session-cost"><div class="session-total">€'+b.totalCost.toFixed(0)+'</div>'
       +'<div class="session-per">from pocket</div></div></div>'
       +'<div style="font-size:12px;color:var(--text3);margin-top:2px">'+payersText+'</div></div>';
   }).join('');
 }
 
-// ============ INTERACTIONS ============
+// ============ LIVE PREVIEW ============
 function togglePlayer(el,name,type){
   el.classList.toggle('selected');
-  if(type==='sp') updateSessionPreview();
-  if(type==='bp'){ updateBulkAmounts(); updateBulkPreview(); }
+  if(type==='sp')updateSessionPreview();
+  if(type==='bp'){updateBulkAmounts();updateBulkPreview();}
 }
-function getSelectedPlayers(cls){return [...document.querySelectorAll('.'+cls+':checked')].map(x=>x.value)}
-
+function getSelectedPlayers(cls){return[...document.querySelectorAll('.'+cls+':checked')].map(x=>x.value)}
 function updateSessionPreview(){
   const players=getSelectedPlayers('sp-check');
   const hours=parseFloat(document.getElementById('sessionHours').value)||2;
   const tph=parseInt(document.getElementById('ticketsPerHour').value)||8;
-  const tickets=hours*tph, price=currentTicketPrice(), total=tickets*price;
-  const per=players.length>0?total/players.length:0;
+  const tickets=hours*tph,price=currentTicketPrice(),total=tickets*price;
+  const per=players.length?total/players.length:0;
   document.getElementById('previewAmt').textContent=players.length?'€'+per.toFixed(2)+'/player':'—';
-  document.getElementById('previewDetail').textContent=players.length?
-    tickets+' tickets × €'+price.toFixed(2)+' = €'+total.toFixed(2)+' total':'Select players to preview';
+  document.getElementById('previewDetail').textContent=players.length?tickets+' tickets × €'+price.toFixed(2)+' = €'+total.toFixed(2)+' total':'Select players to preview';
 }
 function updateBulkAmounts(){
   const players=getSelectedPlayers('bp-check');
@@ -733,133 +659,104 @@ function updateBulkAmounts(){
 function updateBulkPreview(){
   const tickets=parseInt(document.getElementById('bulkTickets').value)||72;
   const cost=parseFloat(document.getElementById('bulkCost').value)||260;
-  const rem=ticketsRemaining(), bal=pocketBalance();
-  const afterPocket=bal-cost;
+  const rem=ticketsRemaining(),bal=pocketBalance(),after=bal-cost;
   document.getElementById('bulkPreview').innerHTML=
     'Pool: '+rem+' + '+tickets+' = <strong>'+(rem+tickets)+' tickets</strong> &nbsp;·&nbsp; '
-    +'Pocket: €'+bal.toFixed(2)+' → <strong style="color:'+(afterPocket>=0?'var(--green)':'var(--danger)')+'">€'+afterPocket.toFixed(2)+'</strong>';
+    +'Pocket: €'+bal.toFixed(2)+' → <strong style="color:'+(after>=0?'var(--green)':'var(--danger)')+'">€'+after.toFixed(2)+'</strong>';
 }
 
-// ============ ACTIONS (all async → save to Firebase) ============
+// ============ ACTIONS ============
 async function addSession(){
   const date=document.getElementById('sessionDate').value;
   const hours=parseFloat(document.getElementById('sessionHours').value);
   const tph=parseInt(document.getElementById('ticketsPerHour').value)||8;
   const players=getSelectedPlayers('sp-check');
   if(!date||!players.length){showToast('Pick a date and at least 1 player');return;}
-  const tickets=hours*tph, price=currentTicketPrice(), perPlayer=(tickets*price)/players.length;
+  const tickets=hours*tph,perPlayer=(tickets*currentTicketPrice())/players.length;
   state.sessions.push({id:b36(),date,hours,tickets,players,perPlayer});
-  showToast('Saving session…');
-  await saveState();
-  showToast('Session recorded ✓');
-  renderAll();
-  showPanel('sessions');
+  showToast('Saving…');await saveState();showToast('Session recorded ✓');renderAll();showPanel('sessions');
 }
-
 async function addBulk(){
   const date=document.getElementById('bulkDate').value;
   const tickets=parseInt(document.getElementById('bulkTickets').value);
   const cost=parseFloat(document.getElementById('bulkCost').value);
   const players=getSelectedPlayers('bp-check');
-  if(!date||!tickets||!cost||!players.length){showToast('Fill in date and all bulk details');return;}
+  if(!date||!tickets||!cost||!players.length){showToast('Fill in all bulk details');return;}
   const payers={};
   players.forEach(p=>{const v=parseFloat(document.getElementById('bulk_amt_'+p)?.value||0);if(v>0)payers[p]=v;});
   const rem=ticketsRemaining();
   state.bulks.push({id:b36(),date,totalTickets:tickets,totalCost:cost,payers,ticketPrice:cost/tickets});
-  showToast('Saving bulk…');
-  await saveState();
-  showToast('Bulk added — pool: '+rem+' + '+tickets+' = '+ticketsRemaining()+' tickets ✓');
-  renderAll();
-  showPanel('dashboard');
+  showToast('Saving…');await saveState();
+  showToast('Pool: '+rem+' + '+tickets+' = '+ticketsRemaining()+' tickets ✓');
+  renderAll();showPanel('dashboard');
 }
-
 async function addTopup(){
   const player=document.getElementById('topupPlayer').value;
   const amount=parseFloat(document.getElementById('topupAmount').value);
   const date=document.getElementById('topupDate').value;
   const note=document.getElementById('topupNote').value.trim();
   if(!player||!amount||!date){showToast('Fill in player, amount and date');return;}
-  if(!state.topups) state.topups=[];
+  if(!state.topups)state.topups=[];
   state.topups.push({id:b36(),date,player,amount,note});
-  showToast('Saving…');
-  await saveState();
-  document.getElementById('topupAmount').value='';
-  document.getElementById('topupNote').value='';
-  showToast('€'+amount.toFixed(2)+' added for '+player+' ✓');
-  renderAll();
-  showPanel('dashboard');
+  showToast('Saving…');await saveState();
+  document.getElementById('topupAmount').value='';document.getElementById('topupNote').value='';
+  showToast('€'+amount.toFixed(2)+' added for '+player+' ✓');renderAll();showPanel('dashboard');
 }
-
 async function addPlayer(){
   const name=document.getElementById('newPlayerName').value.trim();
   if(!name){showToast('Enter a name');return;}
-  if(state.players.includes(name)){showToast('Player already exists');return;}
-  state.players.push(name);
-  await saveState();
-  document.getElementById('newPlayerName').value='';
-  showToast(name+' added ✓');
-  renderAll();
+  if(state.players.includes(name)){showToast('Already exists');return;}
+  state.players.push(name);await saveState();
+  document.getElementById('newPlayerName').value='';showToast(name+' added ✓');renderAll();
 }
 
 // ============ MODALS ============
 function openSession(id){
-  const s=state.sessions.find(x=>x.id===id); if(!s)return;
+  const s=state.sessions.find(x=>x.id===id);if(!s)return;
   document.getElementById('modalTitle').textContent=fmtDate(s.date);
-  const total=s.perPlayer*s.players.length;
   document.getElementById('modalContent').innerHTML=`
-    <div class="info-row"><span>Duration</span><span>${s.hours} hour${s.hours!==1?'s':''}</span></div>
+    <div class="info-row"><span>Duration</span><span>${s.hours}h</span></div>
     <div class="info-row"><span>Tickets used</span><span>${s.tickets}</span></div>
     <div class="info-row"><span>Players</span><span>${s.players.length}</span></div>
     <div class="info-row"><span>Cost per player</span><span>€${s.perPlayer.toFixed(2)}</span></div>
-    <div class="info-row"><span>Total cost</span><span>€${total.toFixed(2)}</span></div>
-    <div style="margin-top:12px;font-size:13px;color:var(--text3);margin-bottom:6px;font-weight:500">Players present</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px">${s.players.map(p=>'<span class="player-chip">'+p+'</span>').join('')}</div>
-  `;
+    <div class="info-row"><span>Total cost</span><span>€${(s.perPlayer*s.players.length).toFixed(2)}</span></div>
+    <div style="margin-top:12px;font-size:13px;color:var(--text3);margin-bottom:6px;font-weight:500">Players</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">${s.players.map(p=>'<span class="player-chip">'+p+'</span>').join('')}</div>`;
   document.getElementById('modalDeleteBtn').onclick=()=>deleteSession(id);
   document.getElementById('sessionModal').classList.add('open');
 }
 async function deleteSession(id){
   state.sessions=state.sessions.filter(x=>x.id!==id);
-  await saveState(); closeModal(); showToast('Session deleted'); renderAll();
+  await saveState();closeModal();showToast('Deleted');renderAll();
 }
 function closeModal(){document.getElementById('sessionModal').classList.remove('open')}
 
 function openBulkModal(id){
-  const b=state.bulks.find(x=>x.id===id); if(!b)return;
+  const b=state.bulks.find(x=>x.id===id);if(!b)return;
   const payerRows=Object.entries(b.payers).map(([p,v])=>'<div class="info-row"><span>'+p+'</span><span>€'+v.toFixed(2)+'</span></div>').join('');
   document.getElementById('bulkModalTitle').textContent='Bulk · '+fmtDate(b.date);
   document.getElementById('bulkModalContent').innerHTML=`
-    <div class="info-row"><span>Date</span>
-      <span><input type="date" id="editBulkDate" value="${b.date}" style="border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;font-family:var(--font);color:var(--text);background:var(--card)"></span>
-    </div>
-    <div class="info-row"><span>Total tickets</span>
-      <span><input type="number" id="editBulkTickets" value="${b.totalTickets}" min="1" style="width:70px;border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;text-align:right"></span>
-    </div>
-    <div class="info-row"><span>Total cost (€)</span>
-      <span><input type="number" id="editBulkCost" value="${b.totalCost}" min="0" step="0.01" style="width:80px;border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;text-align:right"></span>
-    </div>
-    <div style="margin-top:12px;font-size:13px;color:var(--text3);margin-bottom:6px;font-weight:500">Payers</div>
-    ${payerRows}
-    <button class="btn btn-primary" style="margin-top:12px" onclick="saveBulkEdit('${id}')">
-      <i class="ti ti-check" style="margin-right:6px"></i>Save changes
-    </button>
-  `;
+    <div class="info-row"><span>Date</span><span><input type="date" id="editBulkDate" value="${b.date}" style="border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;color:var(--text);background:var(--card)"></span></div>
+    <div class="info-row"><span>Tickets</span><span><input type="number" id="editBulkTickets" value="${b.totalTickets}" min="1" style="width:70px;border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;text-align:right"></span></div>
+    <div class="info-row"><span>Cost (€)</span><span><input type="number" id="editBulkCost" value="${b.totalCost}" min="0" step="0.01" style="width:80px;border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;text-align:right"></span></div>
+    <div style="margin-top:12px;font-size:13px;color:var(--text3);margin-bottom:6px;font-weight:500">Payers</div>${payerRows}
+    <button class="btn btn-primary" style="margin-top:12px" onclick="saveBulkEdit('${id}')"><i class="ti ti-check" style="margin-right:6px"></i>Save changes</button>`;
   document.getElementById('bulkModalDeleteBtn').onclick=()=>deleteBulk(id);
   document.getElementById('bulkModal').classList.add('open');
 }
 async function saveBulkEdit(id){
-  const b=state.bulks.find(x=>x.id===id); if(!b)return;
+  const b=state.bulks.find(x=>x.id===id);if(!b)return;
   const date=document.getElementById('editBulkDate').value;
   const tickets=parseInt(document.getElementById('editBulkTickets').value);
   const cost=parseFloat(document.getElementById('editBulkCost').value);
   if(!date||!tickets||!cost){showToast('Fill in all fields');return;}
-  b.date=date; b.totalTickets=tickets; b.totalCost=cost; b.ticketPrice=cost/tickets;
-  await saveState(); closeBulkModal(); showToast('Bulk updated ✓'); renderAll();
+  b.date=date;b.totalTickets=tickets;b.totalCost=cost;b.ticketPrice=cost/tickets;
+  await saveState();closeBulkModal();showToast('Bulk updated ✓');renderAll();
 }
 async function deleteBulk(id){
-  if(state.bulks.length===1){showToast('Cannot delete the only bulk');return;}
+  if(state.bulks.length===1){showToast('Cannot delete only bulk');return;}
   state.bulks=state.bulks.filter(x=>x.id!==id);
-  await saveState(); closeBulkModal(); showToast('Bulk deleted'); renderAll();
+  await saveState();closeBulkModal();showToast('Deleted');renderAll();
 }
 function closeBulkModal(){document.getElementById('bulkModal').classList.remove('open')}
 
@@ -867,20 +764,17 @@ function openTopupModal(){
   const topups=[...(state.topups||[])].sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById('topupModalContent').innerHTML=topups.length?topups.map(t=>`
     <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="flex:1">
-        <div style="font-size:14px;font-weight:500">${t.player}</div>
-        <div style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}${t.note?' · '+t.note:''}</div>
-      </div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:500">${t.player}</div>
+      <div style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}${t.note?' · '+t.note:''}</div></div>
       <div style="font-size:15px;font-weight:600;color:var(--green);font-family:var(--mono)">€${t.amount.toFixed(2)}</div>
       <button onclick="deleteTopup('${t.id}')" style="background:none;border:none;cursor:pointer;color:var(--danger);padding:4px;font-size:16px"><i class="ti ti-trash"></i></button>
-    </div>
-  `).join(''):'<div class="empty" style="padding:20px 0"><i class="ti ti-piggy-bank"></i><div class="empty-text">No top-ups yet</div></div>';
+    </div>`).join(''):'<div class="empty" style="padding:20px 0"><i class="ti ti-piggy-bank"></i><div class="empty-text">No top-ups yet</div></div>';
   document.getElementById('topupModal').classList.add('open');
 }
 function closeTopupModal(){document.getElementById('topupModal').classList.remove('open')}
 async function deleteTopup(id){
   state.topups=(state.topups||[]).filter(t=>t.id!==id);
-  await saveState(); openTopupModal(); showToast('Top-up deleted'); renderAll();
+  await saveState();openTopupModal();showToast('Deleted');renderAll();
 }
 
 // ============ NAVIGATION ============
@@ -889,22 +783,19 @@ function showPanel(name){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
-  if(name==='add') renderAdd();
-  if(name==='players') renderPlayers();
+  if(name==='add')renderAdd();
+  if(name==='players')renderPlayers();
 }
 function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
 }
-function renderAll(){
-  renderDashboard(); renderSessions(); renderBulkHistory();
-}
+function renderAll(){renderDashboard();renderSessions();renderBulkHistory();}
 
-// ============ EVENT LISTENERS ============
+// ============ EVENTS ============
 document.addEventListener('change',e=>{
-  if(e.target.id==='sessionHours'||e.target.id==='ticketsPerHour') updateSessionPreview();
-  if(e.target.id==='bulkCost'||e.target.id==='bulkTickets'){ updateBulkAmounts(); updateBulkPreview(); }
+  if(e.target.id==='sessionHours'||e.target.id==='ticketsPerHour')updateSessionPreview();
+  if(e.target.id==='bulkCost'||e.target.id==='bulkTickets'){updateBulkAmounts();updateBulkPreview();}
 });
 document.getElementById('sessionModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
 document.getElementById('bulkModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeBulkModal()});
