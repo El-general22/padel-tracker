@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Padel Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{
+    --green:#1a7a4a;--green-light:#e8f5ee;--green-mid:#4caf7a;
+    --surface:#f7f8f5;--card:#fff;--border:#e4e8e0;
+    --text:#1c2318;--text2:#5a6b5a;--text3:#8fa08f;
+    --danger:#c0392b;--danger-light:#fdecea;
+    --amber:#b8620a;--amber-light:#fef3e2;
+    --blue:#1a5fa0;--blue-light:#e8f2fc;
+    --radius:14px;--radius-sm:8px;
+    --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  }
+  body{font-family:var(--font);background:var(--surface);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;padding-bottom:80px}
+  
+  /* Header */
+  .header{background:var(--green);padding:20px 20px 16px;position:sticky;top:0;z-index:100}
+  .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .header-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-0.3px}
+  .header-sub{font-size:13px;color:rgba(255,255,255,0.7)}
+  .ticket-pill{background:rgba(255,255,255,0.18);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:500;color:#fff;display:flex;align-items:center;gap:6px}
+  
+  /* Nav tabs */
+  .nav{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-bottom:1px solid var(--border);position:sticky;top:73px;z-index:99}
+  .nav-btn{padding:11px 4px;text-align:center;font-size:11px;font-weight:500;color:var(--text3);border:none;background:none;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent}
+  .nav-btn i{font-size:18px}
+  .nav-btn.active{color:var(--green);border-bottom-color:var(--green)}
+  
+  /* Panels */
+  .panel{display:none;padding:16px}
+  .panel.active{display:block}
+  
+  /* Section label */
+  .section-label{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin:0 0 10px}
+  
+  /* Cards */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+  .card-sm{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px}
+  
+  /* Metric row */
+  .metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .metric{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px}
+  .metric-label{font-size:11px;color:var(--text3);margin-bottom:4px}
+  .metric-val{font-size:22px;font-weight:600;letter-spacing:-0.5px;color:var(--text)}
+  .metric-val.green{color:var(--green)}
+  .metric-val.amber{color:var(--amber)}
+  .metric-val.danger{color:var(--danger)}
+
+  /* Balance bars */
+  .player-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .player-row:last-child{border-bottom:none;padding-bottom:0}
+  .player-row:first-child{padding-top:0}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--green-light);color:var(--green);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .player-name{font-size:14px;font-weight:500;flex:1;min-width:0}
+  .player-detail{font-size:12px;color:var(--text3)}
+  .balance-chip{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500;font-family:var(--mono)}
+  .chip-green{background:var(--green-light);color:var(--green)}
+  .chip-amber{background:var(--amber-light);color:var(--amber)}
+  .chip-danger{background:var(--danger-light);color:var(--danger)}
+  .chip-gray{background:#f0f0ee;color:var(--text3)}
+
+  /* Session cards */
+  .session-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+  .session-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+  .session-date{font-size:15px;font-weight:600}
+  .session-meta{font-size:12px;color:var(--text3);margin-top:2px}
+  .session-cost{text-align:right}
+  .session-total{font-size:16px;font-weight:600;color:var(--green)}
+  .session-per{font-size:12px;color:var(--text3)}
+  .players-chips{display:flex;flex-wrap:wrap;gap:5px}
+  .player-chip{padding:3px 9px;background:var(--surface);border:1px solid var(--border);border-radius:12px;font-size:12px;color:var(--text2)}
+
+  /* Forms */
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px}
+  .field input,.field select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;color:var(--text);background:var(--card);outline:none;transition:.15s}
+  .field input:focus,.field select:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(26,122,74,.08)}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  
+  /* Player checkboxes */
+  .player-checks{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .pcheck{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:.12s;background:var(--card)}
+  .pcheck.selected{border-color:var(--green);background:var(--green-light)}
+  .pcheck input{display:none}
+  .pcheck-name{font-size:13px;font-weight:500}
+  .pcheck-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:.12s;flex-shrink:0}
+  .pcheck.selected .pcheck-dot{background:var(--green)}
+
+  /* Buttons */
+  .btn{width:100%;padding:13px;border-radius:var(--radius-sm);border:none;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;transition:.15s;margin-top:4px}
+  .btn-primary{background:var(--green);color:#fff}
+  .btn-primary:active{background:#155f38}
+  .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2);margin-top:8px}
+  .btn-danger{background:var(--danger);color:#fff;margin-top:8px}
+  .btn-sm{width:auto;padding:7px 14px;font-size:13px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);color:var(--text2);font-family:var(--font);cursor:pointer}
+
+  /* Bulk purchase */
+  .bulk-highlight{background:linear-gradient(135deg,#1a7a4a 0%,#0f5a34 100%);border-radius:var(--radius);padding:16px;color:#fff;margin-bottom:14px}
+  .bulk-title{font-size:13px;opacity:.8;margin-bottom:4px}
+  .bulk-val{font-size:28px;font-weight:700;letter-spacing:-1px}
+  .bulk-sub{font-size:13px;opacity:.7;margin-top:2px}
+  .progress-bar-bg{background:rgba(255,255,255,.2);border-radius:10px;height:6px;margin-top:10px}
+  .progress-bar-fill{background:#fff;border-radius:10px;height:6px;transition:.4s}
+
+  /* Toast */
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1c2318;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;opacity:0;pointer-events:none;transition:.3s;white-space:nowrap}
+  .toast.show{opacity:1}
+
+  /* Divider */
+  .divider{height:1px;background:var(--border);margin:14px 0}
+
+  /* Empty state */
+  .empty{text-align:center;padding:40px 20px;color:var(--text3)}
+  .empty i{font-size:40px;margin-bottom:10px;display:block}
+  .empty-text{font-size:14px}
+
+  /* Tag */
+  .tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:12px;font-size:12px;font-weight:500;background:var(--surface);border:1px solid var(--border);color:var(--text2)}
+
+  /* Modal overlay */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;justify-content:center}
+  .modal-bg.open{display:flex}
+  .modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:430px;max-height:90vh;overflow-y:auto}
+  .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+  .modal-title{font-size:17px;font-weight:600;margin-bottom:16px}
+
+  .info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px}
+  .info-row:last-child{border-bottom:none}
+  .info-row span:first-child{color:var(--text2)}
+  .info-row span:last-child{font-weight:500;font-family:var(--mono)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-title">Padel Tracker 🎾</div>
+      <div class="header-sub">Split payments, no drama</div>
+    </div>
+    <div class="ticket-pill" id="ticketPill">
+      <i class="ti ti-ticket"></i>
+      <span id="ticketRemaining">--</span> left
+    </div>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPanel('dashboard')" id="tab-dashboard">
+    <i class="ti ti-chart-pie"></i>Dashboard
+  </button>
+  <button class="nav-btn" onclick="showPanel('sessions')" id="tab-sessions">
+    <i class="ti ti-calendar-event"></i>Sessions
+  </button>
+  <button class="nav-btn" onclick="showPanel('add')" id="tab-add">
+    <i class="ti ti-plus"></i>Add
+  </button>
+  <button class="nav-btn" onclick="showPanel('players')" id="tab-players">
+    <i class="ti ti-users"></i>Players
+  </button>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="panel active" id="panel-dashboard">
+  <div id="bulkSummary"></div>
+  <div class="section-label">🏦 Shared Pocket</div>
+  <div id="pocketSummary"></div>
+  <div class="section-label" style="margin-top:4px">Player contributions</div>
+  <div class="card" id="pocketPlayerList"></div>
+  <div class="section-label" style="margin-top:16px">Player balances</div>
+  <div class="card" id="balanceList"></div>
+  <div class="section-label" style="margin-top:16px">Bulk purchases</div>
+  <div id="bulkHistoryList"></div>
+  <div class="section-label" style="margin-top:16px">Quick stats</div>
+  <div class="metrics" id="quickStats"></div>
+</div>
+
+<!-- SESSIONS -->
+<div class="panel" id="panel-sessions">
+  <div id="sessionList"></div>
+</div>
+
+<!-- ADD SESSION / BULK -->
+<div class="panel" id="panel-add">
+  <div class="section-label">Record a session</div>
+  <div style="font-size:12px;color:var(--text3);margin-bottom:10px" id="ticketPoolInfo"></div>
+  <div class="card">
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="sessionDate">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Hours played</label>
+        <select id="sessionHours">
+          <option value="1">1 hour</option>
+          <option value="1.5">1.5 hours</option>
+          <option value="2" selected>2 hours</option>
+          <option value="2.5">2.5 hours</option>
+          <option value="3">3 hours</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tickets/hr</label>
+        <input type="number" id="ticketsPerHour" value="8" min="1">
+      </div>
+    </div>
+    <div class="field">
+      <label>Who played?</label>
+      <div class="player-checks" id="sessionPlayers"></div>
+    </div>
+    <div class="card-sm" style="background:var(--green-light);border-color:#b8dfc8" id="sessionPreview">
+      <div style="font-size:12px;color:var(--green);font-weight:500">Cost preview</div>
+      <div style="font-size:20px;font-weight:700;color:var(--green);letter-spacing:-0.5px" id="previewAmt">—</div>
+      <div style="font-size:12px;color:var(--green);opacity:.7" id="previewDetail"></div>
+    </div>
+    <button class="btn btn-primary" onclick="addSession()">
+      <i class="ti ti-check" style="margin-right:6px"></i>Record Session
+    </button>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">New bulk purchase</div>
+  <div class="card">
+    <div class="field">
+      <label>Purchase date</label>
+      <input type="date" id="bulkDate">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Total tickets</label>
+        <input type="number" id="bulkTickets" value="72" min="1">
+      </div>
+      <div class="field">
+        <label>Total cost (€)</label>
+        <input type="number" id="bulkCost" value="260" min="0">
+      </div>
+    </div>
+    <div class="field">
+      <label>Who paid for this bulk?</label>
+      <div class="player-checks" id="bulkPayers"></div>
+    </div>
+    <div class="field">
+      <label>How much did each pay? (€)</label>
+      <div id="bulkAmounts"></div>
+    </div>
+    <div id="bulkPreview" style="font-size:12px;color:var(--text3);background:var(--surface);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:10px"></div>
+    <button class="btn btn-primary" onclick="addBulk()">
+      <i class="ti ti-shopping-cart" style="margin-right:6px"></i>Record Bulk Purchase
+    </button>
+  </div>
+
+  <div class="divider"></div>
+  <div class="section-label">💰 Add money to the pocket</div>
+  <div class="card">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:12px;line-height:1.5">
+      Record a direct top-up — a monthly contribution, a lump sum, or any cash added outside of sessions.
+    </div>
+    <div class="field">
+      <label>Player</label>
+      <select id="topupPlayer"></select>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Amount (€)</label>
+        <input type="number" id="topupAmount" placeholder="50" min="0" step="0.01">
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="topupDate">
+      </div>
+    </div>
+    <div class="field">
+      <label>Note (optional)</label>
+      <input type="text" id="topupNote" placeholder="e.g. Monthly May, cash">
+    </div>
+    <button class="btn btn-primary" onclick="addTopup()">
+      <i class="ti ti-piggy-bank" style="margin-right:6px"></i>Add to pocket
+    </button>
+  </div>
+</div>
+
+<!-- PLAYERS -->
+<div class="panel" id="panel-players">
+  <div class="section-label">All players</div>
+  <div id="playerDetailList"></div>
+  <div class="divider"></div>
+  <div class="section-label">Add a player</div>
+  <div class="card">
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="newPlayerName" placeholder="e.g. Karim">
+    </div>
+    <button class="btn btn-primary" onclick="addPlayer()">Add player</button>
+  </div>
+</div>
+
+<!-- Session detail modal -->
+<div class="modal-bg" id="sessionModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">Session</div>
+    <div id="modalContent"></div>
+    <button class="btn btn-danger" id="modalDeleteBtn">Delete session</button>
+    <button class="btn btn-outline" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<!-- Bulk detail/edit modal -->
+<div class="modal-bg" id="bulkModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="bulkModalTitle">Bulk Purchase</div>
+    <div id="bulkModalContent"></div>
+    <button class="btn btn-danger" id="bulkModalDeleteBtn">Delete bulk</button>
+    <button class="btn btn-outline" onclick="closeBulkModal()">Close</button>
+  </div>
+</div>
+
+<!-- Pocket top-up history modal -->
+<div class="modal-bg" id="topupModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Pocket top-ups</div>
+    <div id="topupModalContent"></div>
+    <button class="btn btn-outline" onclick="closeTopupModal()" style="margin-top:8px">Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ DATA ============
+const ALL_PLAYERS = ['Achraf','Ashraf','Bassem','Rafic','Karim A','Hazem','Tarek','Karim H','Salama'];
+
+let state = loadState() || {
+  players: [...ALL_PLAYERS],
+  bulks: [
+    {
+      id: b36(),
+      date: '2026-03-27',
+      totalTickets: 72,
+      totalCost: 260,
+      payers: {'Achraf':66,'Ashraf':66,'Bassem':66,'Rafic':66},
+      ticketPrice: 260/72
+    }
+  ],
+  sessions: [
+    {id:b36(),date:'2026-03-28',hours:2,tickets:16,players:['Achraf','Bassem'],perPlayer:14.44},
+    {id:b36(),date:'2026-04-04',hours:2,tickets:16,players:['Achraf','Bassem','Rafic'],perPlayer:14.44},
+    {id:b36(),date:'2026-04-11',hours:2,tickets:16,players:['Achraf','Ashraf','Karim A'],perPlayer:11.55},
+    {id:b36(),date:'2026-04-18',hours:2,tickets:16,players:['Achraf','Ashraf','Bassem','Karim A'],perPlayer:14.44}
+  ],
+  topups: [
+    {id:b36(),date:'2026-05-30',player:'Achraf',amount:60,note:'Monthly May'}
+  ]
+};
+
+function b36(){return Math.random().toString(36).slice(2,9)}
+function loadState(){try{return JSON.parse(localStorage.getItem('padel_state'))||null}catch(e){return null}}
+function saveState(){localStorage.setItem('padel_state',JSON.stringify(state))}
+
+// ============ TICKET POOL (cumulative across all bulks) ============
+// All bulk purchases accumulate into one running pool.
+// Adding a new bulk just adds more tickets to the total.
+function totalTicketsPurchased(){return state.bulks.reduce((s,b)=>s+b.totalTickets,0)}
+function totalTicketsUsed(){return state.sessions.reduce((s,sess)=>s+sess.tickets,0)}
+function ticketsRemaining(){return Math.max(0,totalTicketsPurchased()-totalTicketsUsed())}
+function latestTicketPrice(){
+  if(!state.bulks.length)return 0;
+  const sorted=[...state.bulks].sort((a,b)=>a.date.localeCompare(b.date));
+  return sorted[sorted.length-1].ticketPrice;
+}
+function currentTicketPrice(){return latestTicketPrice()}
+
+// ============ POCKET (real cash account) ============
+// Money IN  = direct top-ups only (cash people explicitly add to the pot)
+// Money OUT = full cost of each bulk purchase (paid from the pot)
+// Bulk payer fields now track WHO funded which bulk (for history), but the
+// pocket balance is simply: sum(top-ups) - sum(bulk costs)
+//
+// Per-player pocket standing:
+//   contributed = their top-ups + their share of bulk payments (for personal ledger)
+//   consumed    = their session costs
+//   net         = contributed - consumed
+
+function pocketTotalTopups(){return (state.topups||[]).reduce((s,t)=>s+t.amount,0)}
+function pocketTotalBulkCosts(){return state.bulks.reduce((s,b)=>s+b.totalCost,0)}
+function pocketTotalBulkPaid(){
+  return state.bulks.reduce((s,b)=>s+Object.values(b.payers).reduce((a,v)=>a+v,0),0);
+}
+function pocketBalance(){
+  // Real cash in pocket = all money ever contributed (bulk payments + top-ups) minus bulk purchases
+  return pocketTotalBulkPaid() + pocketTotalTopups() - pocketTotalBulkCosts();
+}
+function pocketTotalIn(){return pocketTotalBulkPaid()+pocketTotalTopups()}
+
+function playerPocketContribution(player){
+  const fromBulks  = state.bulks.reduce((s,b)=>s+(b.payers[player]||0),0);
+  const fromTopups = (state.topups||[]).filter(t=>t.player===player).reduce((s,t)=>s+t.amount,0);
+  const consumed   = state.sessions.filter(sess=>sess.players.includes(player)).reduce((s,sess)=>s+sess.perPlayer,0);
+  const contributed = fromBulks+fromTopups;
+  return {fromBulks,fromTopups,contributed,consumed,net:contributed-consumed};
+}
+
+// ============ HELPERS ============
+function fmt(n){return '€'+Math.abs(n).toFixed(2)}
+function fmtDate(s){
+  if(!s)return '';
+  const d=new Date(s+'T00:00:00');
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}
+function avatarColor(name){
+  const colors=[
+    {bg:'#e8f5ee',c:'#1a7a4a'},{bg:'#e8f2fc',c:'#1a5fa0'},
+    {bg:'#fef3e2',c:'#b8620a'},{bg:'#fdecea',c:'#c0392b'},
+    {bg:'#f0eef8',c:'#6c40b5'},{bg:'#e8f5f0',c:'#0f7060'},
+    {bg:'#fceef5',c:'#b52060'},{bg:'#f5f0e8',c:'#7a5a1a'},
+    {bg:'#eef5f8',c:'#1a6080'}
+  ];
+  let h=0;for(const c of name)h=(h*31+c.charCodeAt(0))&0xffff;
+  return colors[h%colors.length];
+}
+function todayStr(){return new Date().toISOString().split('T')[0]}
+
+// ============ RENDER: DASHBOARD ============
+function renderDashboard(){
+  const used=totalTicketsUsed();
+  const purchased=totalTicketsPurchased();
+  const rem=ticketsRemaining();
+  const pct=purchased?Math.round(used/purchased*100):0;
+  const price=latestTicketPrice();
+
+  // Ticket pool header
+  document.getElementById('bulkSummary').innerHTML=purchased?`
+    <div class="bulk-highlight" style="margin-bottom:14px">
+      <div class="bulk-title">Ticket pool · ${state.bulks.length} bulk${state.bulks.length>1?'s':''} total</div>
+      <div class="bulk-val">${rem} <span style="font-size:18px;font-weight:400;opacity:.8">tickets left</span></div>
+      <div class="bulk-sub">${used} used of ${purchased} total · €${price.toFixed(2)}/ticket (latest price)</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    </div>
+  `:'<div class="card" style="text-align:center;color:var(--text3);padding:20px">No bulk purchases yet</div>';
+
+  // Pocket
+  const bal=pocketBalance();
+  const totalIn=pocketTotalIn();
+  const bulkCosts=pocketTotalBulkCosts();
+  const topups=pocketTotalTopups();
+  const bulkPaid=pocketTotalBulkPaid();
+  // Next bulk estimate: assume same size as last bulk
+  const lastBulk=state.bulks.length?[...state.bulks].sort((a,b)=>a.date.localeCompare(b.date)).slice(-1)[0]:null;
+  const nextBulkCost=lastBulk?lastBulk.totalCost:260;
+  const pocketPct=nextBulkCost>0?Math.min(100,Math.max(0,Math.round(bal/nextBulkCost*100))):0;
+
+  document.getElementById('pocketSummary').innerHTML=`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">Ever paid in</div>
+          <div style="font-size:18px;font-weight:600;color:var(--green)">€${totalIn.toFixed(0)}</div>
+        </div>
+        <div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border)">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">Spent on bulks</div>
+          <div style="font-size:18px;font-weight:600;color:var(--amber)">€${bulkCosts.toFixed(0)}</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">Cash now</div>
+          <div style="font-size:18px;font-weight:600;color:${bal>=0?'var(--green)':'var(--danger)'}">€${bal.toFixed(0)}</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px">
+        Savings toward next bulk (est. €${nextBulkCost.toFixed(0)}) · ${pocketPct}%
+      </div>
+      <div style="background:var(--border);border-radius:10px;height:8px;margin-bottom:10px">
+        <div style="background:var(--green);border-radius:10px;height:8px;width:${pocketPct}%;transition:.4s"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:12px;color:var(--text3);line-height:1.8">
+          <span style="color:var(--text2)">Bulk payments:</span> €${bulkPaid.toFixed(2)}&nbsp;&nbsp;
+          <span style="color:var(--text2)">Direct top-ups:</span> €${topups.toFixed(2)}
+        </div>
+        <button class="btn-sm" onclick="openTopupModal()"><i class="ti ti-history" style="font-size:14px;vertical-align:-2px"></i> History</button>
+      </div>
+    </div>
+  `;
+
+  // Per-player pocket standing
+  document.getElementById('pocketPlayerList').innerHTML=state.players.map(p=>{
+    const c=playerPocketContribution(p);
+    const av=avatarColor(p);
+    const netCol=c.net>0.01?'var(--green)':c.net<-0.01?'var(--danger)':'var(--text3)';
+    const netLabel=c.net>0.01?'+€'+c.net.toFixed(2):c.net<-0.01?'-€'+Math.abs(c.net).toFixed(2):'settled';
+    const parts=[];
+    if(c.fromBulks>0)  parts.push('bulk €'+c.fromBulks.toFixed(2));
+    if(c.fromTopups>0) parts.push('top-ups €'+c.fromTopups.toFixed(2));
+    if(c.consumed>0)   parts.push('played €'+c.consumed.toFixed(2));
+    return '<div class="player-row">'
+      +'<div class="avatar" style="background:'+av.bg+';color:'+av.c+'">'+initials(p)+'</div>'
+      +'<div style="flex:1;min-width:0">'
+        +'<div class="player-name">'+p+'</div>'
+        +'<div class="player-detail">'+(parts.join(' · ')||'no activity')+'</div>'
+      +'</div>'
+      +'<div style="text-align:right">'
+        +'<div style="font-size:14px;font-weight:600;color:'+netCol+';font-family:var(--mono)">'+netLabel+'</div>'
+        +'<div style="font-size:10px;color:var(--text3)">pocket net</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+
+  // Player balances
+  document.getElementById('balanceList').innerHTML=state.players.map(p=>{
+    const c=playerPocketContribution(p);
+    const av=avatarColor(p);
+    const col=c.net>0.01?'chip-green':c.net<-0.01?'chip-danger':'chip-gray';
+    const label=c.net>0.01?'+'+fmt(c.net)+' credit':c.net<-0.01?'owes '+fmt(c.net):'settled';
+    const parts=[];
+    if(c.consumed>0)   parts.push('played €'+c.consumed.toFixed(2));
+    if(c.fromBulks>0)  parts.push('bulk €'+c.fromBulks.toFixed(2));
+    if(c.fromTopups>0) parts.push('top-ups €'+c.fromTopups.toFixed(2));
+    return '<div class="player-row">'
+      +'<div class="avatar" style="background:'+av.bg+';color:'+av.c+'">'+initials(p)+'</div>'
+      +'<div style="flex:1;min-width:0">'
+        +'<div class="player-name">'+p+'</div>'
+        +'<div class="player-detail">'+(parts.join(' · ')||'no activity')+'</div>'
+      +'</div>'
+      +'<span class="balance-chip '+col+'">'+label+'</span>'
+    +'</div>';
+  }).join('');
+
+  // Quick stats
+  const totalSessions=state.sessions.length;
+  const totalHours=state.sessions.reduce((s,x)=>s+x.hours,0);
+  const totalSpent=state.sessions.reduce((s,x)=>s+x.perPlayer*x.players.length,0);
+  document.getElementById('quickStats').innerHTML=
+    '<div class="metric"><div class="metric-label">Sessions played</div><div class="metric-val">'+totalSessions+'</div></div>'
+    +'<div class="metric"><div class="metric-label">Hours on court</div><div class="metric-val">'+totalHours+'h</div></div>'
+    +'<div class="metric"><div class="metric-label">Tickets remaining</div><div class="metric-val green">'+rem+'</div></div>'
+    +'<div class="metric"><div class="metric-label">Total consumed</div><div class="metric-val">€'+totalSpent.toFixed(0)+'</div></div>';
+
+  document.getElementById('ticketRemaining').textContent=rem;
+}
+
+// ============ RENDER: SESSIONS ============
+function renderSessions(){
+  const sl=document.getElementById('sessionList');
+  if(!state.sessions.length){
+    sl.innerHTML='<div class="empty"><i class="ti ti-calendar-off"></i><div class="empty-text">No sessions yet. Record your first game!</div></div>';
+    return;
+  }
+  const sorted=[...state.sessions].sort((a,b)=>b.date.localeCompare(a.date));
+  sl.innerHTML=sorted.map(s=>`
+    <div class="session-card" onclick="openSession('${s.id}')">
+      <div class="session-header">
+        <div>
+          <div class="session-date">${fmtDate(s.date)}</div>
+          <div class="session-meta">${s.hours}h · ${s.tickets} tickets · ${s.players.length} players</div>
+        </div>
+        <div class="session-cost">
+          <div class="session-total">€${s.perPlayer.toFixed(2)}</div>
+          <div class="session-per">per player</div>
+        </div>
+      </div>
+      <div class="players-chips">${s.players.map(p=>'<span class="player-chip">'+p+'</span>').join('')}</div>
+    </div>
+  `).join('');
+}
+
+// ============ RENDER: ADD PANEL ============
+function renderAdd(){
+  document.getElementById('sessionPlayers').innerHTML=state.players.map(p=>`
+    <label class="pcheck" onclick="togglePlayer(this,'${p}','sp')">
+      <input type="checkbox" value="${p}" class="sp-check">
+      <div class="pcheck-dot"></div>
+      <span class="pcheck-name">${p}</span>
+    </label>
+  `).join('');
+
+  document.getElementById('bulkPayers').innerHTML=state.players.map(p=>`
+    <label class="pcheck" onclick="togglePlayer(this,'${p}','bp')">
+      <input type="checkbox" value="${p}" class="bp-check">
+      <div class="pcheck-dot"></div>
+      <span class="pcheck-name">${p}</span>
+    </label>
+  `).join('');
+
+  const today=todayStr();
+  document.getElementById('sessionDate').value=today;
+  document.getElementById('bulkDate').value=today;
+  document.getElementById('topupDate').value=today;
+
+  const sel=document.getElementById('topupPlayer');
+  sel.innerHTML=state.players.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+
+  // Show running ticket pool info
+  const rem=ticketsRemaining();
+  const price=latestTicketPrice();
+  document.getElementById('ticketPoolInfo').innerHTML=
+    rem+' tickets in pool · €'+price.toFixed(2)+' each';
+
+  updateSessionPreview();
+  updateBulkAmounts();
+  updateBulkPreview();
+}
+
+// ============ RENDER: PLAYERS ============
+function renderPlayers(){
+  document.getElementById('playerDetailList').innerHTML=state.players.map(p=>{
+    const c=playerPocketContribution(p);
+    const av=avatarColor(p);
+    const netCol=c.net>=0?'var(--green)':'var(--danger)';
+    const netSign=c.net>=0?'+':'';
+    return '<div class="card-sm" style="display:flex;align-items:center;gap:12px">'
+      +'<div class="avatar" style="background:'+av.bg+';color:'+av.c+'">'+initials(p)+'</div>'
+      +'<div style="flex:1">'
+        +'<div style="font-weight:500;font-size:14px">'+p+'</div>'
+        +'<div style="font-size:12px;color:var(--text3)">'+state.sessions.filter(s=>s.players.includes(p)).length+' sessions played</div>'
+      +'</div>'
+      +'<div style="text-align:right">'
+        +'<div style="font-size:13px;font-family:var(--mono);font-weight:500;color:'+netCol+'">'+netSign+'€'+c.net.toFixed(2)+'</div>'
+        +'<div style="font-size:11px;color:var(--text3)">pocket net</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+// ============ RENDER: BULK HISTORY ============
+function renderBulkHistory(){
+  const el=document.getElementById('bulkHistoryList');
+  if(!el)return;
+  if(!state.bulks.length){
+    el.innerHTML='<div class="empty" style="padding:20px 0"><i class="ti ti-shopping-cart-off"></i><div class="empty-text">No bulk purchases yet</div></div>';
+    return;
+  }
+  const sorted=[...state.bulks].sort((a,b)=>b.date.localeCompare(a.date));
+  // Running cumulative totals for context
+  let runningTickets=totalTicketsPurchased();
+  el.innerHTML=sorted.map((b,i)=>{
+    const payersText=Object.entries(b.payers).map(([p,v])=>p+' €'+v.toFixed(0)).join(' · ');
+    const isLatest=i===0;
+    return '<div class="session-card" onclick="openBulkModal(\''+b.id+'\')" style="'+(isLatest?'border-color:var(--green);':'')+'\">'
+      +'<div class="session-header">'
+        +'<div>'
+          +'<div class="session-date">'+fmtDate(b.date)+(isLatest?' <span style="font-size:11px;background:var(--green-light);color:var(--green);padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle">latest</span>':'')+'</div>'
+          +'<div class="session-meta">'+b.totalTickets+' tickets · €'+b.totalCost.toFixed(2)+' · €'+b.ticketPrice.toFixed(2)+'/ticket</div>'
+        +'</div>'
+        +'<div class="session-cost">'
+          +'<div class="session-total">€'+b.totalCost.toFixed(0)+'</div>'
+          +'<div class="session-per">from pocket</div>'
+        +'</div>'
+      +'</div>'
+      +'<div style="font-size:12px;color:var(--text3);margin-top:2px">'+payersText+'</div>'
+    +'</div>';
+  }).join('');
+}
+
+// ============ INTERACTIONS ============
+function togglePlayer(el,name,type){
+  el.classList.toggle('selected');
+  if(type==='sp')updateSessionPreview();
+  if(type==='bp'){updateBulkAmounts();updateBulkPreview();}
+}
+
+function getSelectedPlayers(cls){
+  return [...document.querySelectorAll('.'+cls+':checked')].map(x=>x.value);
+}
+
+function updateSessionPreview(){
+  const players=getSelectedPlayers('sp-check');
+  const hours=parseFloat(document.getElementById('sessionHours').value)||2;
+  const tph=parseInt(document.getElementById('ticketsPerHour').value)||8;
+  const tickets=hours*tph;
+  const price=currentTicketPrice();
+  const total=tickets*price;
+  const per=players.length>0?total/players.length:0;
+  document.getElementById('previewAmt').textContent=players.length?'€'+per.toFixed(2)+'/player':'—';
+  document.getElementById('previewDetail').textContent=players.length?
+    tickets+' tickets × €'+price.toFixed(2)+' = €'+total.toFixed(2)+' total':'Select players to preview';
+}
+
+function updateBulkAmounts(){
+  const players=getSelectedPlayers('bp-check');
+  const cost=parseFloat(document.getElementById('bulkCost').value)||260;
+  const share=players.length?(cost/players.length).toFixed(2):'—';
+  const container=document.getElementById('bulkAmounts');
+  if(!players.length){container.innerHTML='<div style="font-size:13px;color:var(--text3)">Select payers above</div>';return;}
+  container.innerHTML=players.map(p=>`
+    <div class="field">
+      <label>${p}</label>
+      <input type="number" id="bulk_amt_${p}" value="${share}" step="0.01" min="0">
+    </div>
+  `).join('');
+}
+
+function updateBulkPreview(){
+  const tickets=parseInt(document.getElementById('bulkTickets').value)||72;
+  const cost=parseFloat(document.getElementById('bulkCost').value)||260;
+  const rem=ticketsRemaining();
+  const newTotal=rem+tickets;
+  const bal=pocketBalance();
+  const afterPocket=bal-cost;
+  document.getElementById('bulkPreview').innerHTML=
+    'Pool: '+rem+' + '+tickets+' = <strong>'+newTotal+' tickets</strong> &nbsp;·&nbsp; '
+    +'Pocket: €'+bal.toFixed(2)+' → <strong style="color:'+(afterPocket>=0?'var(--green)':'var(--danger)')+'">€'+afterPocket.toFixed(2)+'</strong>';
+}
+
+// ============ ACTIONS ============
+function addSession(){
+  const date=document.getElementById('sessionDate').value;
+  const hours=parseFloat(document.getElementById('sessionHours').value);
+  const tph=parseInt(document.getElementById('ticketsPerHour').value)||8;
+  const players=getSelectedPlayers('sp-check');
+  if(!date||!players.length){showToast('Pick a date and at least 1 player');return;}
+  const tickets=hours*tph;
+  const price=currentTicketPrice();
+  const total=tickets*price;
+  const perPlayer=total/players.length;
+  state.sessions.push({id:b36(),date,hours,tickets,players,perPlayer});
+  saveState();
+  showToast('Session recorded');
+  renderAll();
+  showPanel('sessions');
+}
+
+function addBulk(){
+  const date=document.getElementById('bulkDate').value;
+  const tickets=parseInt(document.getElementById('bulkTickets').value);
+  const cost=parseFloat(document.getElementById('bulkCost').value);
+  const players=getSelectedPlayers('bp-check');
+  if(!date||!tickets||!cost||!players.length){showToast('Fill in date and all bulk details');return;}
+  const payers={};
+  players.forEach(p=>{
+    const v=parseFloat(document.getElementById('bulk_amt_'+p)?.value||0);
+    if(v>0)payers[p]=v;
+  });
+  const rem=ticketsRemaining();
+  state.bulks.push({id:b36(),date,totalTickets:tickets,totalCost:cost,payers,ticketPrice:cost/tickets});
+  saveState();
+  const newRem=ticketsRemaining();
+  showToast('Bulk added — pool: '+rem+' + '+tickets+' = '+newRem+' tickets');
+  renderAll();
+  showPanel('dashboard');
+}
+
+function addTopup(){
+  const player=document.getElementById('topupPlayer').value;
+  const amount=parseFloat(document.getElementById('topupAmount').value);
+  const date=document.getElementById('topupDate').value;
+  const note=document.getElementById('topupNote').value.trim();
+  if(!player||!amount||!date){showToast('Fill in player, amount and date');return;}
+  if(!state.topups)state.topups=[];
+  state.topups.push({id:b36(),date,player,amount,note});
+  saveState();
+  document.getElementById('topupAmount').value='';
+  document.getElementById('topupNote').value='';
+  showToast('€'+amount.toFixed(2)+' added to pocket for '+player);
+  renderAll();
+  showPanel('dashboard');
+}
+
+function addPlayer(){
+  const name=document.getElementById('newPlayerName').value.trim();
+  if(!name){showToast('Enter a name');return;}
+  if(state.players.includes(name)){showToast('Player already exists');return;}
+  state.players.push(name);
+  saveState();
+  document.getElementById('newPlayerName').value='';
+  showToast(name+' added');
+  renderAll();
+}
+
+// ============ MODALS ============
+function openSession(id){
+  const s=state.sessions.find(x=>x.id===id);
+  if(!s)return;
+  document.getElementById('modalTitle').textContent=fmtDate(s.date);
+  const total=s.perPlayer*s.players.length;
+  document.getElementById('modalContent').innerHTML=`
+    <div class="info-row"><span>Duration</span><span>${s.hours} hour${s.hours!==1?'s':''}</span></div>
+    <div class="info-row"><span>Tickets used</span><span>${s.tickets}</span></div>
+    <div class="info-row"><span>Players</span><span>${s.players.length}</span></div>
+    <div class="info-row"><span>Cost per player</span><span>€${s.perPlayer.toFixed(2)}</span></div>
+    <div class="info-row"><span>Total cost</span><span>€${total.toFixed(2)}</span></div>
+    <div style="margin-top:12px;font-size:13px;color:var(--text3);margin-bottom:6px;font-weight:500">Players present</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">${s.players.map(p=>'<span class="player-chip">'+p+'</span>').join('')}</div>
+  `;
+  document.getElementById('modalDeleteBtn').onclick=()=>deleteSession(id);
+  document.getElementById('sessionModal').classList.add('open');
+}
+
+function deleteSession(id){
+  state.sessions=state.sessions.filter(x=>x.id!==id);
+  saveState();
+  closeModal();
+  showToast('Session deleted');
+  renderAll();
+}
+
+function closeModal(){document.getElementById('sessionModal').classList.remove('open')}
+
+function openBulkModal(id){
+  const b=state.bulks.find(x=>x.id===id);
+  if(!b)return;
+  const payerRows=Object.entries(b.payers).map(([p,v])=>'<div class="info-row"><span>'+p+'</span><span>€'+v.toFixed(2)+'</span></div>').join('');
+  document.getElementById('bulkModalTitle').textContent='Bulk · '+fmtDate(b.date);
+  document.getElementById('bulkModalContent').innerHTML=`
+    <div class="info-row"><span>Date</span>
+      <span><input type="date" id="editBulkDate" value="${b.date}" style="border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;font-family:var(--font);color:var(--text);background:var(--card)"></span>
+    </div>
+    <div class="info-row"><span>Total tickets</span>
+      <span><input type="number" id="editBulkTickets" value="${b.totalTickets}" min="1" style="width:70px;border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;font-family:var(--font);color:var(--text);background:var(--card);text-align:right"></span>
+    </div>
+    <div class="info-row"><span>Total cost (€)</span>
+      <span><input type="number" id="editBulkCost" value="${b.totalCost}" min="0" step="0.01" style="width:80px;border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;font-family:var(--font);color:var(--text);background:var(--card);text-align:right"></span>
+    </div>
+    <div style="margin-top:12px;font-size:13px;color:var(--text3);margin-bottom:6px;font-weight:500">Payers</div>
+    ${payerRows}
+    <button class="btn btn-primary" style="margin-top:12px" onclick="saveBulkEdit('${id}')">
+      <i class="ti ti-check" style="margin-right:6px"></i>Save changes
+    </button>
+  `;
+  document.getElementById('bulkModalDeleteBtn').onclick=()=>deleteBulk(id);
+  document.getElementById('bulkModal').classList.add('open');
+}
+
+function saveBulkEdit(id){
+  const b=state.bulks.find(x=>x.id===id);
+  if(!b)return;
+  const date=document.getElementById('editBulkDate').value;
+  const tickets=parseInt(document.getElementById('editBulkTickets').value);
+  const cost=parseFloat(document.getElementById('editBulkCost').value);
+  if(!date||!tickets||!cost){showToast('Fill in all fields');return;}
+  b.date=date;b.totalTickets=tickets;b.totalCost=cost;b.ticketPrice=cost/tickets;
+  saveState();
+  closeBulkModal();
+  showToast('Bulk updated');
+  renderAll();
+}
+
+function deleteBulk(id){
+  if(state.bulks.length===1){showToast('Cannot delete the only bulk');return;}
+  state.bulks=state.bulks.filter(x=>x.id!==id);
+  saveState();
+  closeBulkModal();
+  showToast('Bulk deleted');
+  renderAll();
+}
+
+function closeBulkModal(){document.getElementById('bulkModal').classList.remove('open')}
+
+function openTopupModal(){
+  const topups=[...(state.topups||[])].sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('topupModalContent').innerHTML=topups.length?topups.map(t=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500">${t.player}</div>
+        <div style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}${t.note?' · '+t.note:''}</div>
+      </div>
+      <div style="font-size:15px;font-weight:600;color:var(--green);font-family:var(--mono)">€${t.amount.toFixed(2)}</div>
+      <button onclick="deleteTopup('${t.id}')" style="background:none;border:none;cursor:pointer;color:var(--danger);padding:4px;font-size:16px"><i class="ti ti-trash"></i></button>
+    </div>
+  `).join(''):'<div class="empty" style="padding:20px 0"><i class="ti ti-piggy-bank"></i><div class="empty-text">No top-ups yet</div></div>';
+  document.getElementById('topupModal').classList.add('open');
+}
+
+function closeTopupModal(){document.getElementById('topupModal').classList.remove('open')}
+
+function deleteTopup(id){
+  state.topups=(state.topups||[]).filter(t=>t.id!==id);
+  saveState();
+  openTopupModal();
+  showToast('Top-up deleted');
+  renderAll();
+}
+
+// ============ NAVIGATION ============
+function showPanel(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='add')renderAdd();
+  if(name==='players')renderPlayers();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function renderAll(){
+  renderDashboard();
+  renderSessions();
+  renderBulkHistory();
+}
+
+// ============ EVENT LISTENERS ============
+document.addEventListener('change',e=>{
+  if(e.target.id==='sessionHours'||e.target.id==='ticketsPerHour')updateSessionPreview();
+  if(e.target.id==='bulkCost'||e.target.id==='bulkTickets'){updateBulkAmounts();updateBulkPreview();}
+});
+document.getElementById('sessionModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+document.getElementById('bulkModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeBulkModal()});
+document.getElementById('topupModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeTopupModal()});
+
+// ============ INIT ============
+renderAll();
+
+</script>
+</body>
+</html>
