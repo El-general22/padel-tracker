@@ -138,8 +138,120 @@
   .info-row span:first-child{color:var(--text2)}
   .info-row span:last-child{font-weight:500;font-family:var(--mono)}
 </style>
+
+  <!-- PWA / iPhone App -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Padel 🎾">
+  <meta name="theme-color" content="#1a7a4a">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%231a7a4a'/><text y='.9em' font-size='72' x='50%' text-anchor='middle'>🎾</text></svg>">
+  <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;Padel Tracker&quot;,&quot;short_name&quot;:&quot;Padel 🎾&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%231a7a4a&quot;,&quot;theme_color&quot;:&quot;%231a7a4a&quot;,&quot;start_url&quot;:&quot;/padel-tracker/&quot;}">
 </head>
 <body>
+
+
+<style>
+#pinScreen{
+  position:fixed;inset:0;z-index:99999;
+  background:linear-gradient(160deg,#0f5a34 0%,#1a7a4a 60%,#4caf7a 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'DM Sans',sans-serif;padding:32px;
+}
+#pinScreen .pin-logo{font-size:56px;margin-bottom:8px}
+#pinScreen .pin-title{font-size:24px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-0.5px}
+#pinScreen .pin-sub{font-size:14px;color:rgba(255,255,255,0.65);margin-bottom:36px}
+#pinScreen .pin-dots{display:flex;gap:14px;margin-bottom:28px}
+#pinScreen .pin-dot{
+  width:16px;height:16px;border-radius:50%;
+  border:2px solid rgba(255,255,255,0.5);background:transparent;transition:.2s;
+}
+#pinScreen .pin-dot.filled{background:#fff;border-color:#fff}
+#pinScreen .pin-dot.error{background:#ff6b6b;border-color:#ff6b6b}
+#pinScreen .pin-pad{display:grid;grid-template-columns:repeat(3,72px);gap:12px}
+#pinScreen .pin-btn{
+  width:72px;height:72px;border-radius:50%;border:none;
+  background:rgba(255,255,255,0.15);color:#fff;
+  font-size:22px;font-weight:500;font-family:'DM Sans',sans-serif;
+  cursor:pointer;transition:.15s;backdrop-filter:blur(4px);
+}
+#pinScreen .pin-btn:active{background:rgba(255,255,255,0.35);transform:scale(0.95)}
+#pinScreen .pin-btn.pin-del{font-size:18px;background:rgba(255,255,255,0.08)}
+#pinScreen .pin-error{color:#ff9999;font-size:13px;margin-top:8px;min-height:18px;transition:.2s}
+</style>
+
+<div id="pinScreen">
+  <div class="pin-logo">🎾</div>
+  <div class="pin-title">Padel Tracker</div>
+  <div class="pin-sub">Enter PIN to continue</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="d0"></div>
+    <div class="pin-dot" id="d1"></div>
+    <div class="pin-dot" id="d2"></div>
+    <div class="pin-dot" id="d3"></div>
+  </div>
+  <div class="pin-pad">
+    <button class="pin-btn" onclick="pinPress('1')">1</button>
+    <button class="pin-btn" onclick="pinPress('2')">2</button>
+    <button class="pin-btn" onclick="pinPress('3')">3</button>
+    <button class="pin-btn" onclick="pinPress('4')">4</button>
+    <button class="pin-btn" onclick="pinPress('5')">5</button>
+    <button class="pin-btn" onclick="pinPress('6')">6</button>
+    <button class="pin-btn" onclick="pinPress('7')">7</button>
+    <button class="pin-btn" onclick="pinPress('8')">8</button>
+    <button class="pin-btn" onclick="pinPress('9')">9</button>
+    <button class="pin-btn" style="visibility:hidden"></button>
+    <button class="pin-btn" onclick="pinPress('0')">0</button>
+    <button class="pin-btn pin-del" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="pin-error" id="pinError"></div>
+</div>
+
+<script>
+// ── PIN LOCK ────────────────────────────────────────────────────────────────
+const CORRECT_PIN = '112358';  // ← change this to your group's PIN
+const PIN_SESSION_KEY = 'padel_pin_ok';
+let pinEntry = '';
+
+// Check if already authenticated this session
+if(sessionStorage.getItem(PIN_SESSION_KEY)==='1'){
+  document.getElementById('pinScreen').style.display='none';
+}
+
+function pinPress(digit){
+  if(pinEntry.length>=4) return;
+  pinEntry += digit;
+  updateDots();
+  if(pinEntry.length===4) setTimeout(checkPin, 120);
+}
+
+function pinDel(){
+  pinEntry = pinEntry.slice(0,-1);
+  updateDots();
+  document.getElementById('pinError').textContent='';
+}
+
+function updateDots(){
+  for(let i=0;i<4;i++){
+    const d=document.getElementById('d'+i);
+    d.classList.toggle('filled', i<pinEntry.length);
+    d.classList.remove('error');
+  }
+}
+
+function checkPin(){
+  if(pinEntry===CORRECT_PIN){
+    sessionStorage.setItem(PIN_SESSION_KEY,'1');
+    const screen=document.getElementById('pinScreen');
+    screen.style.transition='opacity .3s';
+    screen.style.opacity='0';
+    setTimeout(()=>screen.style.display='none',300);
+  } else {
+    for(let i=0;i<4;i++) document.getElementById('d'+i).classList.add('error');
+    document.getElementById('pinError').textContent='Wrong PIN, try again';
+    setTimeout(()=>{ pinEntry=''; updateDots(); document.getElementById('pinError').textContent=''; },900);
+  }
+}
+</script>
 
 <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 <div id="loadingOverlay" style="display:flex;position:fixed;inset:0;background:rgba(26,122,74,0.92);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:16px">
@@ -374,18 +486,29 @@ function startRealtimeSync(){
 }
 
 // ============ DATA ============
-const ALL_PLAYERS=['Achraf','Ashraf','Bassem','Rafic','Karim A','Hazem','Tarek','Karim H','Salama'];
+const ALL_PLAYERS=['Achraf','Ashraf','Bassem','Rafic','Karim A','Hazem','Tarek','Karim H','Salama','Seif','Tawfik'];
 
 const DEFAULT_STATE={
-  players:[...ALL_PLAYERS],
-  bulks:[{id:'bulk01',date:'2026-03-27',totalTickets:72,totalCost:260,payers:{'Achraf':66,'Ashraf':66,'Bassem':66,'Rafic':66},ticketPrice:260/72}],
-  sessions:[
-    {id:'sess01',date:'2026-03-28',hours:2,tickets:16,players:['Achraf','Bassem'],perPlayer:14.44},
-    {id:'sess02',date:'2026-04-04',hours:2,tickets:16,players:['Achraf','Bassem','Rafic'],perPlayer:14.44},
-    {id:'sess03',date:'2026-04-11',hours:2,tickets:16,players:['Achraf','Ashraf','Karim A'],perPlayer:11.55},
-    {id:'sess04',date:'2026-04-18',hours:2,tickets:16,players:['Achraf','Ashraf','Bassem','Karim A'],perPlayer:14.44}
+  players:['Achraf','Ashraf','Bassem','Rafic','Karim A','Hazem','Tarek','Karim H','Salama','Seif','Tawfik'],
+  bulks:[
+    {id:'085gyku',date:'2026-04-27',totalTickets:72,totalCost:260,
+     payers:{'Achraf':65,'Ashraf':65,'Bassem':65,'Rafic':65},ticketPrice:3.6111111111}
   ],
-  topups:[{id:'topup01',date:'2026-05-30',player:'Achraf',amount:60,note:'Monthly May'}]
+  sessions:[
+    {id:'uppfp32',date:'2026-05-10',hours:2,tickets:16,players:['Achraf','Tarek'],perPlayer:28.8888888889},
+    {id:'q6a1xj1',date:'2026-05-15',hours:2,tickets:16,players:['Achraf','Bassem','Karim H','Salama'],perPlayer:14.4444444444},
+    {id:'zl143cv',date:'2026-05-22',hours:2,tickets:16,players:['Achraf','Ashraf','Karim A','Tarek','Seif'],perPlayer:11.5555555556},
+    {id:'s2p1uzg',date:'2026-05-29',hours:2,tickets:16,players:['Achraf','Ashraf','Bassem','Karim A'],perPlayer:14.4444444444}
+  ],
+  topups:[
+    {id:'topup01',date:'2026-05-30',player:'Achraf',amount:60,note:'Monthly May'},
+    {id:'0wr28bb',date:'2026-05-22',player:'Karim A',amount:11.56,note:''},
+    {id:'rwrjycx',date:'2026-05-29',player:'Karim A',amount:14.44,note:''},
+    {id:'j0us9kz',date:'2026-05-22',player:'Karim H',amount:14.5,note:''},
+    {id:'08zyqhl',date:'2026-05-22',player:'Salama',amount:14.5,note:''},
+    {id:'fx7ai37',date:'2026-05-10',player:'Tarek',amount:28.89,note:''},
+    {id:'gnhuxym',date:'2026-05-22',player:'Seif',amount:11.56,note:''}
+  ]
 };
 
 // ── MUST be defined before any call to normaliseState ─────────────────────
