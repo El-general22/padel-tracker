@@ -769,15 +769,13 @@ function renderSessions(){
 // ============ RENDER: ADD PANEL ============
 function renderAdd(){
   document.getElementById('sessionPlayers').innerHTML=state.players.map(p=>`
-    <label class="pcheck" onclick="togglePlayer(this,'${p}','sp')">
-      <input type="checkbox" value="${p}" class="sp-check">
+    <div class="pcheck" onclick="togglePlayer(this,'${p}','sp')" data-player="${p}">
       <div class="pcheck-dot"></div><span class="pcheck-name">${p}</span>
-    </label>`).join('');
+    </div>`).join('');
   document.getElementById('bulkPayers').innerHTML=state.players.map(p=>`
-    <label class="pcheck" onclick="togglePlayer(this,'${p}','bp')">
-      <input type="checkbox" value="${p}" class="bp-check">
+    <div class="pcheck" onclick="togglePlayer(this,'${p}','bp')" data-player="${p}">
       <div class="pcheck-dot"></div><span class="pcheck-name">${p}</span>
-    </label>`).join('');
+    </div>`).join('');
   const today=todayStr();
   document.getElementById('sessionDate').value=today;
   document.getElementById('bulkDate').value=today;
@@ -824,7 +822,12 @@ function togglePlayer(el,name,type){
   if(type==='sp')updateSessionPreview();
   if(type==='bp'){updateBulkAmounts();updateBulkPreview();}
 }
-function getSelectedPlayers(cls){return[...document.querySelectorAll('.'+cls+':checked')].map(x=>x.value)}
+function getSelectedPlayers(cls){
+  const type=cls==='sp-check'?'sp':'bp';
+  return[...document.querySelectorAll('.pcheck.selected')]
+    .filter(el=>el.getAttribute('onclick')&&el.getAttribute('onclick').includes("'"+type+"'"))
+    .map(el=>el.dataset.player);
+}
 function updateSessionPreview(){
   const players=getSelectedPlayers('sp-check');
   const hours=parseFloat(document.getElementById('sessionHours').value)||2;
