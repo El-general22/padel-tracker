@@ -6,26 +6,57 @@
 <title>Padel Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;1,400&family=Public+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   :root{
-    --green:#1a7a4a;--green-light:#e8f5ee;--green-mid:#4caf7a;
-    --surface:#f7f8f5;--card:#fff;--border:#e4e8e0;
-    --text:#1c2318;--text2:#5a6b5a;--text3:#8fa08f;
-    --danger:#c0392b;--danger-light:#fdecea;
-    --amber:#b8620a;--amber-light:#fef3e2;
-    --blue:#1a5fa0;--blue-light:#e8f2fc;
-    --radius:14px;--radius-sm:8px;
-    --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+    /* ── Consult-Gherio brand tokens ── */
+    --teal-600:#2D6E7E;   /* primary */
+    --teal-700:#245A68;   /* primary hover */
+    --teal-900:#153844;   /* primary dark */
+    --terra-600:#C4603A;  /* CTA / accent */
+    --terra-700:#A84E2E;  /* CTA hover */
+    --sand-50:#F5F0E8;    /* page background */
+    --sand-100:#EDE6D8;   /* card/surface */
+    --sand-200:#DDD5C4;   /* border subtle */
+    --sand-400:#BFB49A;   /* border strong */
+    --ink-900:#1E1A16;    /* primary text */
+    --ink-600:#5C5246;    /* secondary text */
+    --ink-400:#9C9080;    /* tertiary text */
+    --success:#3D6B43;    /* success green */
+    --success-light:#E8F0E9;
+    --shadow-sm:0 1px 3px rgba(43,38,32,.08);
+    --shadow-md:0 4px 16px rgba(43,38,32,.10);
+    --shadow-lg:0 8px 32px rgba(43,38,32,.14);
+
+    /* ── App aliases ── */
+    --green:var(--teal-600);
+    --green-light:#E8F2F5;
+    --green-mid:var(--teal-700);
+    --surface:var(--sand-50);
+    --card:#FFFFFF;
+    --border:var(--sand-200);
+    --text:var(--ink-900);
+    --text2:var(--ink-600);
+    --text3:var(--ink-400);
+    --danger:var(--terra-600);
+    --danger-light:#FAE8E2;
+    --amber:var(--terra-600);
+    --amber-light:#FAE8E2;
+    --blue:var(--teal-600);
+    --blue-light:#E8F2F5;
+    --radius:16px;
+    --radius-sm:10px;
+    --font:'Public Sans',sans-serif;
+    --mono:'IBM Plex Mono',monospace;
   }
-  body{font-family:var(--font);background:var(--surface);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;padding-bottom:80px}
+  body{font-family:var(--font);background:var(--surface);color:var(--text);min-height:100vh;max-width:430px;margin:0 auto;padding-bottom:80px;-webkit-font-smoothing:antialiased}
   
   /* Header */
-  .header{background:var(--green);padding:20px 20px 16px;position:sticky;top:0;z-index:100}
+  .header{background:var(--teal-900);padding:20px 20px 16px;position:sticky;top:0;z-index:100}
   .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-  .header-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-0.3px}
+  .header-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-0.3px;font-family:'Newsreader',serif}
   .header-sub{font-size:13px;color:rgba(255,255,255,0.7)}
   .ticket-pill{background:rgba(255,255,255,0.18);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:500;color:#fff;display:flex;align-items:center;gap:6px}
   
@@ -33,25 +64,25 @@
   .nav{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-bottom:1px solid var(--border);position:sticky;top:73px;z-index:99}
   .nav-btn{padding:11px 4px;text-align:center;font-size:11px;font-weight:500;color:var(--text3);border:none;background:none;cursor:pointer;transition:.15s;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent}
   .nav-btn i{font-size:18px}
-  .nav-btn.active{color:var(--green);border-bottom-color:var(--green)}
+  .nav-btn.active{color:var(--terra-600);border-bottom-color:var(--terra-600)}
   
   /* Panels */
   .panel{display:none;padding:16px}
   .panel.active{display:block}
   
   /* Section label */
-  .section-label{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin:0 0 10px}
+  .section-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--terra-600);margin:0 0 10px;font-family:var(--font)}
   
   /* Cards */
-  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
-  .card-sm{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px}
+  .card{background:var(--card);border:none;border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow-md)}
+  .card-sm{background:var(--card);border:none;border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;box-shadow:var(--shadow-sm)}
   
   /* Metric row */
   .metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
   .metric{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px}
   .metric-label{font-size:11px;color:var(--text3);margin-bottom:4px}
-  .metric-val{font-size:22px;font-weight:600;letter-spacing:-0.5px;color:var(--text)}
-  .metric-val.green{color:var(--green)}
+  .metric-val{font-size:22px;font-weight:600;letter-spacing:-0.5px;color:var(--text);font-family:'Newsreader',serif}
+  .metric-val.green{color:var(--teal-600)}
   .metric-val.amber{color:var(--amber)}
   .metric-val.danger{color:var(--danger)}
 
@@ -63,9 +94,9 @@
   .player-name{font-size:14px;font-weight:500;flex:1;min-width:0}
   .player-detail{font-size:12px;color:var(--text3)}
   .balance-chip{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500;font-family:var(--mono)}
-  .chip-green{background:var(--green-light);color:var(--green)}
-  .chip-amber{background:var(--amber-light);color:var(--amber)}
-  .chip-danger{background:var(--danger-light);color:var(--danger)}
+  .chip-green{background:#E8F2F5;color:var(--teal-600)}
+  .chip-amber{background:#FAE8E2;color:var(--terra-600)}
+  .chip-danger{background:#FAE8E2;color:var(--terra-700)}
   .chip-gray{background:#f0f0ee;color:var(--text3)}
 
   /* Session cards */
@@ -74,7 +105,7 @@
   .session-date{font-size:15px;font-weight:600}
   .session-meta{font-size:12px;color:var(--text3);margin-top:2px}
   .session-cost{text-align:right}
-  .session-total{font-size:16px;font-weight:600;color:var(--green)}
+  .session-total{font-size:16px;font-weight:600;color:var(--teal-600)}
   .session-per{font-size:12px;color:var(--text3)}
   .players-chips{display:flex;flex-wrap:wrap;gap:5px}
   .player-chip{padding:3px 9px;background:var(--surface);border:1px solid var(--border);border-radius:12px;font-size:12px;color:var(--text2)}
@@ -83,36 +114,39 @@
   .field{margin-bottom:14px}
   .field label{display:block;font-size:13px;font-weight:500;color:var(--text2);margin-bottom:6px}
   .field input,.field select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;color:var(--text);background:var(--card);outline:none;transition:.15s}
-  .field input:focus,.field select:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(26,122,74,.08)}
+  .field input:focus,.field select:focus{border-color:var(--teal-600);box-shadow:0 0 0 3px rgba(45,110,126,.12)}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   
   /* Player checkboxes */
   .player-checks{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-  .pcheck{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:.12s;background:var(--card)}
-  .pcheck.selected{border-color:var(--green);background:var(--green-light)}
+  .pcheck{display:flex;align-items:center;gap:8px;padding:9px 12px;border:2px solid var(--border);border-radius:20px;cursor:pointer;transition:.15s;background:var(--card);user-select:none}
+  .pcheck.selected{border-color:var(--teal-600);background:var(--teal-600);box-shadow:0 2px 8px rgba(45,110,126,.25)}
   .pcheck input{display:none}
-  .pcheck-name{font-size:13px;font-weight:500}
-  .pcheck-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:.12s;flex-shrink:0}
-  .pcheck.selected .pcheck-dot{background:var(--green)}
+  .pcheck-name{font-size:13px;font-weight:600;color:var(--text2);transition:.15s}
+  .pcheck.selected .pcheck-name{color:#fff}
+  .pcheck-dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--border);background:transparent;transition:.15s;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px}
+  .pcheck.selected .pcheck-dot{background:#fff;border-color:#fff;color:var(--green);font-weight:900}
+  .pcheck-dot::after{content:''}
+  .pcheck.selected .pcheck-dot::after{content:'✓'}
 
   /* Buttons */
   .btn{width:100%;padding:13px;border-radius:var(--radius-sm);border:none;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;transition:.15s;margin-top:4px}
-  .btn-primary{background:var(--green);color:#fff}
-  .btn-primary:active{background:#155f38}
+  .btn-primary{background:var(--teal-600);color:#fff;letter-spacing:.01em}
+  .btn-primary:active{background:var(--teal-700);transform:scale(0.97)}
   .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2);margin-top:8px}
   .btn-danger{background:var(--danger);color:#fff;margin-top:8px}
   .btn-sm{width:auto;padding:7px 14px;font-size:13px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--card);color:var(--text2);font-family:var(--font);cursor:pointer}
 
   /* Bulk purchase */
-  .bulk-highlight{background:linear-gradient(135deg,#1a7a4a 0%,#0f5a34 100%);border-radius:var(--radius);padding:16px;color:#fff;margin-bottom:14px}
+  .bulk-highlight{background:linear-gradient(160deg,var(--teal-900) 0%,var(--teal-600) 100%);border-radius:var(--radius);padding:16px;color:#fff;margin-bottom:14px}
   .bulk-title{font-size:13px;opacity:.8;margin-bottom:4px}
-  .bulk-val{font-size:28px;font-weight:700;letter-spacing:-1px}
+  .bulk-val{font-size:28px;font-weight:600;letter-spacing:-0.5px;font-family:'Newsreader',serif}
   .bulk-sub{font-size:13px;opacity:.7;margin-top:2px}
   .progress-bar-bg{background:rgba(255,255,255,.2);border-radius:10px;height:6px;margin-top:10px}
-  .progress-bar-fill{background:#fff;border-radius:10px;height:6px;transition:.4s}
+  .progress-bar-fill{background:rgba(255,255,255,.85);border-radius:10px;height:6px;transition:.4s}
 
   /* Toast */
-  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1c2318;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;opacity:0;pointer-events:none;transition:.3s;white-space:nowrap}
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--teal-900);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:999;opacity:0;pointer-events:none;transition:.3s;white-space:nowrap;box-shadow:var(--shadow-lg)}
   .toast.show{opacity:1}
 
   /* Divider */
@@ -127,7 +161,7 @@
   .tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:12px;font-size:12px;font-weight:500;background:var(--surface);border:1px solid var(--border);color:var(--text2)}
 
   /* Modal overlay */
-  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;justify-content:center}
+  .modal-bg{position:fixed;inset:0;background:rgba(30,26,22,.55);backdrop-filter:blur(3px);z-index:200;display:none;align-items:flex-end;justify-content:center}
   .modal-bg.open{display:flex}
   .modal{background:var(--card);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:430px;max-height:90vh;overflow-y:auto}
   .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
@@ -153,7 +187,7 @@
 <style>
 #pinScreen{
   position:fixed;inset:0;z-index:99999;
-  background:linear-gradient(160deg,#0f5a34 0%,#1a7a4a 60%,#4caf7a 100%);
+  background:linear-gradient(160deg,var(--teal-900) 0%,var(--teal-600) 60%,#4A96A8 100%);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   font-family:'DM Sans',sans-serif;padding:32px;
 }
@@ -254,7 +288,7 @@ function checkPin(){
 </script>
 
 <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
-<div id="loadingOverlay" style="display:flex;position:fixed;inset:0;background:rgba(26,122,74,0.92);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+<div id="loadingOverlay" style="display:flex;position:fixed;inset:0;background:linear-gradient(160deg,rgba(21,56,68,.97) 0%,rgba(45,110,126,.97) 100%);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:16px">
   <div style="width:48px;height:48px;border:4px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite"></div>
   <div style="color:#fff;font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif">Loading shared data…</div>
 </div>
@@ -364,12 +398,27 @@ function checkPin(){
       </div>
     </div>
     <div class="field">
-      <label>Who paid for this bulk?</label>
-      <div class="player-checks" id="bulkPayers"></div>
+      <label>How was this paid?</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
+        <button type="button" id="payModePlayer" onclick="setBulkPayMode('players')"
+          style="padding:10px;border-radius:10px;border:2px solid var(--green);background:var(--green);color:#fff;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:.15s">
+          👤 By players
+        </button>
+        <button type="button" id="payModePocket" onclick="setBulkPayMode('pocket')"
+          style="padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text2);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:.15s">
+          🏦 From pocket
+        </button>
+      </div>
     </div>
-    <div class="field">
-      <label>How much did each pay? (€)</label>
-      <div id="bulkAmounts"></div>
+    <div id="bulkPayerSection">
+      <div class="field">
+        <label>Who paid?</label>
+        <div class="player-checks" id="bulkPayers"></div>
+      </div>
+      <div class="field">
+        <label>How much did each pay? (€)</label>
+        <div id="bulkAmounts"></div>
+      </div>
     </div>
     <div id="bulkPreview" style="font-size:12px;color:var(--text3);background:var(--surface);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:10px"></div>
     <button class="btn btn-primary" onclick="addBulk()">
@@ -461,6 +510,11 @@ function checkPin(){
 
 <script>
 // ============ FIREBASE CONFIG ============
+// SECURITY NOTE: This app uses a PIN lock (client-side) for access control.
+// Firebase rules are set to open (read/write: true) which is acceptable
+// for a private friend group. For stronger security, enable Firebase Auth
+// and update rules to: {".read":"auth!=null",".write":"auth!=null"}
+// The PIN ''235' is the current access code — share only with your group.
 const FIREBASE_URL = 'https://padel-tracker-deeaf-default-rtdb.europe-west1.firebasedatabase.app';
 
 async function fbGet(path){
@@ -808,14 +862,35 @@ async function addSession(){
   state.sessions.push({id:b36(),date,hours,tickets,players,perPlayer});
   showToast('Saving…');await saveState();showToast('Session recorded ✓');renderAll();showPanel('sessions');
 }
+let bulkPayMode='players'; // 'players' or 'pocket'
+function setBulkPayMode(mode){
+  bulkPayMode=mode;
+  const btnP=document.getElementById('payModePlayer');
+  const btnK=document.getElementById('payModePocket');
+  const sec=document.getElementById('bulkPayerSection');
+  if(mode==='players'){
+    btnP.style.cssText='padding:10px;border-radius:10px;border:2px solid var(--green);background:var(--green);color:#fff;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:.15s';
+    btnK.style.cssText='padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text2);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:.15s';
+    sec.style.display='block';
+  } else {
+    btnK.style.cssText='padding:10px;border-radius:10px;border:2px solid var(--green);background:var(--green);color:#fff;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:.15s';
+    btnP.style.cssText='padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text2);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:.15s';
+    sec.style.display='none';
+  }
+  updateBulkPreview();
+}
 async function addBulk(){
   const date=document.getElementById('bulkDate').value;
   const tickets=parseInt(document.getElementById('bulkTickets').value);
   const cost=parseFloat(document.getElementById('bulkCost').value);
-  const players=getSelectedPlayers('bp-check');
-  if(!date||!tickets||!cost||!players.length){showToast('Fill in all bulk details');return;}
+  if(!date||!tickets||!cost){showToast('Fill in date, tickets and cost');return;}
   const payers={};
-  players.forEach(p=>{const v=parseFloat(document.getElementById('bulk_amt_'+p)?.value||0);if(v>0)payers[p]=v;});
+  if(bulkPayMode==='players'){
+    const players=getSelectedPlayers('bp-check');
+    if(!players.length){showToast('Select at least one payer, or choose "From pocket"');return;}
+    players.forEach(p=>{const v=parseFloat(document.getElementById('bulk_amt_'+p)?.value||0);if(v>0)payers[p]=v;});
+  }
+  // pocket mode: payers stays empty — cost is deducted from pocket balance automatically
   const rem=ticketsRemaining();
   state.bulks.push({id:b36(),date,totalTickets:tickets,totalCost:cost,payers,ticketPrice:cost/tickets});
   showToast('Saving…');await saveState();
