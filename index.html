@@ -498,9 +498,10 @@ function checkPin(){
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:18px">
       <div style="position:relative;width:96px;height:96px;margin-bottom:12px">
         <div class="avatar" id="playerModalAvatar" style="width:96px;height:96px;font-size:32px;background-size:cover;background-position:center"></div>
-        <div style="position:absolute;bottom:0;right:0;width:30px;height:30px;border-radius:50%;background:var(--card);border:3px solid var(--card);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md)">
+        <div onclick="document.getElementById('playerPhotoInput').click()" style="position:absolute;bottom:0;right:0;width:30px;height:30px;border-radius:50%;background:var(--card);border:3px solid var(--card);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);cursor:pointer">
           <i class="ti ti-camera" style="font-size:15px;color:var(--text3)"></i>
         </div>
+        <input type="file" id="playerPhotoInput" accept="image/*" style="display:none" onchange="handlePhotoSelected(event)">
       </div>
       <div style="font-size:22px;font-weight:700;letter-spacing:-0.3px;font-family:'Newsreader',serif" id="playerModalName"></div>
       <div style="font-size:13px;color:var(--text3)" id="playerModalSub"></div>
@@ -590,7 +591,8 @@ const DEFAULT_STATE={
     {id:'08zyqhl',date:'2026-05-22',player:'Salama',amount:14.5,note:''},
     {id:'fx7ai37',date:'2026-05-10',player:'Tarek',amount:28.89,note:''},
     {id:'gnhuxym',date:'2026-05-22',player:'Seif',amount:11.56,note:''}
-  ]
+  ],
+  playerPhotos:{}
 };
 
 // ── MUST be defined before any call to normaliseState ─────────────────────
@@ -603,6 +605,7 @@ function normaliseState(raw){
   s.sessions=toArr(s.sessions).map(sess=>({...sess,players:toArr(sess.players).filter(p=>typeof p==='string')}));
   s.topups  =toArr(s.topups);
   s.bulks=s.bulks.map(b=>({...b,payers:b.payers||{},ticketPrice:b.ticketPrice||b.totalCost/b.totalTickets}));
+  s.playerPhotos=(s.playerPhotos&&typeof s.playerPhotos==='object'&&!Array.isArray(s.playerPhotos))?s.playerPhotos:{};
   return s;
 }
 
@@ -683,6 +686,13 @@ function avatarColor(name){
   let h=0;for(const c of name)h=(h*31+c.charCodeAt(0))&0xffff;
   return colors[h%colors.length];
 }
+function playerPhoto(p){return(state.playerPhotos||{})[p]||null}
+function avatarDiv(p){
+  const photo=playerPhoto(p);
+  if(photo) return'<div class="avatar" style="background-image:url(\''+photo+'\');background-size:cover;background-position:center"></div>';
+  const av=avatarColor(p);
+  return'<div class="avatar" style="background:'+av.bg+';color:'+av.c+'">'+initials(p)+'</div>';
+}
 function todayStr(){return new Date().toISOString().split('T')[0]}
 
 // ============ RENDER: DASHBOARD ============
@@ -743,7 +753,7 @@ function renderDashboard(){
     if(c.fromTopups>0)parts.push('top-ups €'+c.fromTopups.toFixed(2));
     if(c.consumed>0)parts.push('played €'+c.consumed.toFixed(2));
     return'<div class="player-row" style="cursor:pointer" onclick="openPlayerProfile(\''+p+'\')">'
-      +'<div class="avatar" style="background:'+av.bg+';color:'+av.c+'">'+initials(p)+'</div>'
+      +avatarDiv(p)
       +'<div style="flex:1;min-width:0"><div class="player-name">'+p+'</div>'
       +'<div class="player-detail">'+(parts.join(' · ')||'no activity')+'</div></div>'
       +'<div style="text-align:right"><div style="font-size:14px;font-weight:600;color:'+netCol+';font-family:var(--mono)">'+netLabel+'</div>'
@@ -760,7 +770,7 @@ function renderDashboard(){
     if(c.fromBulks>0)parts.push('bulk €'+c.fromBulks.toFixed(2));
     if(c.fromTopups>0)parts.push('top-ups €'+c.fromTopups.toFixed(2));
     return'<div class="player-row" style="cursor:pointer" onclick="openPlayerProfile(\''+p+'\')">'
-      +'<div class="avatar" style="background:'+av.bg+';color:'+av.c+'">'+initials(p)+'</div>'
+      +avatarDiv(p)
       +'<div style="flex:1;min-width:0"><div class="player-name">'+p+'</div>'
       +'<div class="player-detail">'+(parts.join(' · ')||'no activity')+'</div></div>'
       +'<span class="balance-chip '+col+'">'+label+'</span>'
@@ -822,7 +832,7 @@ function renderPlayers(){
     const netCol=c.net>0.01?'var(--green)':c.net<-0.01?'var(--danger)':'var(--text3)';
     const nsess=state.sessions.filter(s=>s.players.includes(p)).length;
     return'<div class="card-sm" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="openPlayerProfile(\''+p+'\')">'
-      +'<div class="avatar" style="background:'+av.bg+';color:'+av.c+'">'+initials(p)+'</div>'
+      +avatarDiv(p)
       +'<div style="flex:1"><div style="font-weight:500;font-size:14px">'+p+'</div>'
       +'<div style="font-size:12px;color:var(--text3)">'+nsess+' session'+(nsess!==1?'s':'')+'</div></div>'
       +'<div style="text-align:right"><div style="font-size:13px;font-family:var(--mono);font-weight:500;color:'+netCol+'">'+(c.net>0.01?'+':'')+'€'+c.net.toFixed(2)+'</div>'
@@ -1028,18 +1038,23 @@ function closeModal(){
 }
 
 // ============ PLAYER PROFILE ============
+let _currentProfilePlayer=null;
 function openPlayerProfile(player){
+  _currentProfilePlayer=player;
   const c=playerPocketContribution(player);
   const av=avatarColor(player);
+  const photo=playerPhoto(player);
   const playerSessions=[...state.sessions].filter(s=>s.players.includes(player)).sort((a,b)=>b.date.localeCompare(a.date));
   const playerTopups=[...(state.topups||[])].filter(t=>t.player===player).sort((a,b)=>b.date.localeCompare(a.date));
   const bulkContrib=state.bulks.filter(b=>b.payers[player]).map(b=>({date:b.date,amount:b.payers[player],id:b.id}));
 
   const netCol=c.net>0.01?'var(--green)':c.net<-0.01?'var(--danger)':'var(--text3)';
 
-  document.getElementById('playerModalAvatar').style.background=av.bg;
-  document.getElementById('playerModalAvatar').style.color=av.c;
-  document.getElementById('playerModalAvatar').textContent=initials(player);
+  const avatarEl=document.getElementById('playerModalAvatar');
+  avatarEl.style.backgroundColor=photo?'transparent':av.bg;
+  avatarEl.style.backgroundImage=photo?"url('"+photo+"')":'none';
+  avatarEl.style.color=photo?'transparent':av.c;
+  avatarEl.textContent=photo?'':initials(player);
   document.getElementById('playerModalName').textContent=player;
   document.getElementById('playerModalSub').textContent=playerSessions.length+' sessions · €'+c.consumed.toFixed(2)+' played';
 
@@ -1095,6 +1110,44 @@ function openPlayerProfile(player){
   document.getElementById('playerModal').classList.add('open');
 }
 function closePlayerModal(){document.getElementById('playerModal').classList.remove('open')}
+
+// ============ PLAYER PHOTO UPLOAD ============
+function handlePhotoSelected(e){
+  const file=e.target.files[0];
+  e.target.value=''; // allow re-selecting the same file later
+  if(!file||!_currentProfilePlayer)return;
+  if(!file.type.startsWith('image/')){showToast('Please choose an image');return;}
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const img=new Image();
+    img.onload=function(){
+      const maxDim=320;
+      let w=img.width,h=img.height;
+      if(w>h){if(w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}}
+      else{if(h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}}
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      const dataUrl=canvas.toDataURL('image/jpeg',0.72);
+      savePlayerPhoto(_currentProfilePlayer,dataUrl);
+    };
+    img.onerror=function(){showToast('Could not read that image');};
+    img.src=ev.target.result;
+  };
+  reader.onerror=function(){showToast('Could not read that file');};
+  reader.readAsDataURL(file);
+}
+async function savePlayerPhoto(player,dataUrl){
+  if(!state.playerPhotos)state.playerPhotos={};
+  state.playerPhotos[player]=dataUrl;
+  showToast('Saving photo…');
+  await saveState();
+  showToast('Photo updated ✓');
+  openPlayerProfile(player);
+  renderDashboard();
+  if(document.getElementById('panel-players').classList.contains('active'))renderPlayers();
+}
 
 function openBulkModal(id){
   const b=state.bulks.find(x=>x.id===id);if(!b)return;
