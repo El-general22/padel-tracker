@@ -183,6 +183,343 @@
 </head>
 <body>
 
+<script>
+// ── I18N (English / French) ─────────────────────────────────────────────
+const STRINGS={
+  en:{
+    'app.title':'Padel Tracker',
+    'header.subtitle':'Split payments, no drama',
+    'header.greeting':'Hi, {name} · Split payments, no drama',
+    'ticket.left':'left',
+    'nav.dashboard':'Dashboard','nav.sessions':'Sessions','nav.add':'Add','nav.players':'Players',
+    'dashboard.pocketSection':'🏦 Shared Pocket',
+    'dashboard.noBulks':'No bulk purchases yet',
+    'bulk.ticketPool':'Ticket pool',
+    'bulk.ticketsLeft':'tickets left',
+    'bulk.usedOf':'{used} used of {purchased} · €{price}/ticket',
+    'pocket.everPaidIn':'Ever paid in',
+    'pocket.spentOnBulks':'Spent on bulks',
+    'pocket.cashNow':'Cash now',
+    'pocket.savingsToward':'Savings toward next bulk (est. €{cost}) · {pct}%',
+    'pocket.bulkPayments':'Bulk payments:',
+    'pocket.directTopups':'Direct top-ups:',
+    'pocket.history':'History',
+    'dashboard.playerBalances':'Player balances',
+    'player.noActivity':'no activity',
+    'player.played':'played',
+    'player.bulk':'bulk',
+    'player.topups':'top-ups',
+    'balance.credit':'credit',
+    'balance.owes':'owes',
+    'balance.settled':'settled',
+    'dashboard.bulkPurchases':'Bulk purchases',
+    'bulk.noBulksYet':'No bulks yet',
+    'bulk.fromPocket':'from pocket',
+    'bulk.latest':'latest',
+    'dashboard.quickStats':'Quick stats',
+    'stats.sessionsPlayed':'Sessions played',
+    'stats.hoursOnCourt':'Hours on court',
+    'stats.ticketsRemaining':'Tickets remaining',
+    'stats.totalConsumed':'Total consumed',
+    'sessions.empty':'No sessions yet!',
+    'session.perPlayer':'per player',
+    'session.players':'players',
+    'add.recordSession':'Record a session',
+    'add.ticketPoolInfo':'{rem} tickets in pool · €{price} each',
+    'add.date':'Date',
+    'add.hoursPlayed':'Hours played',
+    'add.hour1':'1 hour','add.hour1_5':'1.5 hours','add.hour2':'2 hours','add.hour2_5':'2.5 hours','add.hour3':'3 hours',
+    'add.ticketsPerHour':'Tickets/hr',
+    'add.whoPlayed':'Who played?',
+    'add.costPreview':'Cost preview',
+    'add.selectToPreview':'Select players to preview',
+    'add.recordSessionBtn':'Record Session',
+    'add.newBulkPurchase':'New bulk purchase',
+    'add.purchaseDate':'Purchase date',
+    'add.totalTickets':'Total tickets',
+    'add.totalCost':'Total cost (€)',
+    'add.howPaid':'How was this paid?',
+    'add.byPlayers':'👤 By players',
+    'add.fromPocketBtn':'🏦 From pocket',
+    'add.whoPaid':'Who paid?',
+    'add.howMuchEach':'How much did each pay? (€)',
+    'add.selectPayersAbove':'Select payers above',
+    'add.recordBulkBtn':'Record Bulk Purchase',
+    'add.addMoneyToPocket':'💰 Add money to the pocket',
+    'add.topupDesc':'Record a direct top-up — a monthly contribution, a lump sum, or any cash added outside of sessions.',
+    'add.player':'Player',
+    'add.amount':'Amount (€)',
+    'add.note':'Note (optional)',
+    'add.notePlaceholder':'e.g. Monthly May, cash',
+    'add.addToPocketBtn':'Add to pocket',
+    'players.all':'All players',
+    'players.add':'Add a player',
+    'players.name':'Name',
+    'players.namePlaceholder':'e.g. Karim',
+    'players.addBtn':'Add player',
+    'players.session':'session','players.sessions':'sessions',
+    'players.pocketNet':'pocket net',
+    'modal.session':'Session',
+    'modal.edit':'Edit','modal.cancel':'Cancel',
+    'modal.duration':'Duration',
+    'modal.ticketsUsed':'Tickets used',
+    'modal.players':'Players',
+    'modal.costPerPlayer':'Cost per player',
+    'modal.totalCost':'Total cost',
+    'modal.deleteSession':'Delete session',
+    'modal.close':'Close',
+    'modal.hours':'Hours',
+    'modal.saveChanges':'Save changes',
+    'playerModal.contributed':'Contributed',
+    'playerModal.consumed':'Consumed',
+    'playerModal.balance':'Balance',
+    'playerModal.sessionsPlayed':'Sessions played',
+    'playerModal.noSessionsYet':'No sessions yet',
+    'playerModal.pocketContributions':'Pocket contributions',
+    'playerModal.bulkPurchase':'Bulk purchase',
+    'playerModal.topup':'Top-up',
+    'playerModal.bulkShare':'bulk share',
+    'playerModal.directTopup':'direct top-up',
+    'playerModal.sub':'{n} sessions · €{amt} played',
+    'bulkModal.title':'Bulk Purchase',
+    'bulkModal.titleWithDate':'Bulk · {date}',
+    'bulkModal.date':'Date','bulkModal.tickets':'Tickets','bulkModal.cost':'Cost (€)',
+    'bulkModal.payers':'Payers',
+    'bulkModal.saveChanges':'Save changes',
+    'bulkModal.deleteBulk':'Delete bulk',
+    'topupModal.title':'Pocket top-ups',
+    'topupModal.noneYet':'No top-ups yet',
+    'toast.pickDateAndPlayer':'Pick a date and at least 1 player',
+    'toast.saving':'Saving…',
+    'toast.sessionRecorded':'Session recorded ✓',
+    'toast.fillDateTicketsCost':'Fill in date, tickets and cost',
+    'toast.selectPayerOrPocket':'Select at least one payer, or choose "From pocket"',
+    'toast.poolUpdated':'Pool: {rem} + {tickets} = {total} tickets ✓',
+    'toast.fillPlayerAmountDate':'Fill in player, amount and date',
+    'toast.topupAdded':'€{amount} added for {player} ✓',
+    'toast.enterName':'Enter a name',
+    'toast.alreadyExists':'Already exists',
+    'toast.playerAdded':'{name} added ✓',
+    'toast.sessionUpdated':'Session updated ✓',
+    'toast.deleted':'Deleted',
+    'toast.cannotDeleteOnlyBulk':'Cannot delete only bulk',
+    'toast.bulkUpdated':'Bulk updated ✓',
+    'toast.fillAllFields':'Fill in all fields',
+    'toast.photoSaving':'Saving photo…',
+    'toast.photoUpdated':'Photo updated ✓',
+    'toast.chooseImage':'Please choose an image',
+    'toast.couldNotReadImage':'Could not read that image',
+    'toast.couldNotReadFile':'Could not read that file',
+    'toast.syncError':'Sync error',
+    'toast.offlineDefault':'Offline — showing default data',
+    'loading.text':'Loading shared data…',
+    'auth.subtitleLogin':'Log in to continue',
+    'auth.subtitleLink':'Almost there — which player are you?',
+    'auth.login':'Log in','auth.signup':'Sign up',
+    'auth.emailPlaceholder':'Email','auth.passwordPlaceholder':'Password',
+    'auth.forgotPassword':'Forgot password?',
+    'auth.yourName':'Your name',
+    'auth.passwordMin':'Password (min 6 characters)',
+    'auth.createAccount':'Create account',
+    'auth.continue':'Continue',
+    'auth.loadingPlayers':'Loading players…',
+    'auth.notListed':"+ My name isn't listed",
+    'auth.pleasePickName':'Please pick or enter your name',
+    'auth.fillEmailPassword':'Please fill in email and password',
+    'auth.enterEmailFirst':'Enter your email above first, then tap "Forgot password?"',
+    'auth.resetSent':'If that email has an account, a reset link was just sent.',
+    'auth.emailExists':'An account with that email already exists — try logging in instead.',
+    'auth.emailNotFound':'No account found with that email.',
+    'auth.incorrectCreds':'Incorrect email or password.',
+    'auth.weakPassword':'Password must be at least 6 characters.',
+    'auth.invalidEmail':'Please enter a valid email address.',
+    'auth.tooManyAttempts':'Too many attempts — please wait a bit and try again.',
+    'aria.logout':'Log out','aria.close':'Close'
+  },
+  fr:{
+    'app.title':'Padel Tracker',
+    'header.subtitle':'Partagez les frais, sans prise de tête',
+    'header.greeting':'Salut, {name} · Partagez les frais, sans prise de tête',
+    'ticket.left':'restants',
+    'nav.dashboard':'Tableau','nav.sessions':'Sessions','nav.add':'Ajouter','nav.players':'Joueurs',
+    'dashboard.pocketSection':'🏦 Caisse commune',
+    'dashboard.noBulks':'Aucun achat groupé encore',
+    'bulk.ticketPool':'Réserve de tickets',
+    'bulk.ticketsLeft':'tickets restants',
+    'bulk.usedOf':'{used} utilisés sur {purchased} · €{price}/ticket',
+    'pocket.everPaidIn':'Total versé',
+    'pocket.spentOnBulks':'Dépensé en achats',
+    'pocket.cashNow':'Solde actuel',
+    'pocket.savingsToward':'Épargne pour le prochain achat (est. €{cost}) · {pct}%',
+    'pocket.bulkPayments':'Paiements groupés :',
+    'pocket.directTopups':'Versements directs :',
+    'pocket.history':'Historique',
+    'dashboard.playerBalances':'Soldes des joueurs',
+    'player.noActivity':'aucune activité',
+    'player.played':'joué',
+    'player.bulk':'achat',
+    'player.topups':'versements',
+    'balance.credit':'crédit',
+    'balance.owes':'doit',
+    'balance.settled':'à jour',
+    'dashboard.bulkPurchases':'Achats groupés',
+    'bulk.noBulksYet':'Aucun achat encore',
+    'bulk.fromPocket':'via la caisse',
+    'bulk.latest':'dernier',
+    'dashboard.quickStats':'Statistiques',
+    'stats.sessionsPlayed':'Sessions jouées',
+    'stats.hoursOnCourt':'Heures sur le court',
+    'stats.ticketsRemaining':'Tickets restants',
+    'stats.totalConsumed':'Total consommé',
+    'sessions.empty':'Aucune session encore !',
+    'session.perPlayer':'par joueur',
+    'session.players':'joueurs',
+    'add.recordSession':'Enregistrer une session',
+    'add.ticketPoolInfo':'{rem} tickets en réserve · €{price} chacun',
+    'add.date':'Date',
+    'add.hoursPlayed':'Heures jouées',
+    'add.hour1':'1 heure','add.hour1_5':'1,5 heure','add.hour2':'2 heures','add.hour2_5':'2,5 heures','add.hour3':'3 heures',
+    'add.ticketsPerHour':'Tickets/h',
+    'add.whoPlayed':'Qui a joué ?',
+    'add.costPreview':'Aperçu du coût',
+    'add.selectToPreview':'Sélectionnez des joueurs pour l\'aperçu',
+    'add.recordSessionBtn':'Enregistrer la session',
+    'add.newBulkPurchase':'Nouvel achat groupé',
+    'add.purchaseDate':"Date d'achat",
+    'add.totalTickets':'Total tickets',
+    'add.totalCost':'Coût total (€)',
+    'add.howPaid':'Comment a-t-il été payé ?',
+    'add.byPlayers':'👤 Par joueurs',
+    'add.fromPocketBtn':'🏦 Via la caisse',
+    'add.whoPaid':'Qui a payé ?',
+    'add.howMuchEach':'Combien chacun a payé ? (€)',
+    'add.selectPayersAbove':'Sélectionnez les payeurs ci-dessus',
+    'add.recordBulkBtn':"Enregistrer l'achat groupé",
+    'add.addMoneyToPocket':'💰 Ajouter de l\'argent à la caisse',
+    'add.topupDesc':"Enregistrez un versement direct — une contribution mensuelle, une somme ponctuelle, ou tout argent ajouté hors session.",
+    'add.player':'Joueur',
+    'add.amount':'Montant (€)',
+    'add.note':'Note (optionnel)',
+    'add.notePlaceholder':'ex. Mensuel mai, espèces',
+    'add.addToPocketBtn':'Ajouter à la caisse',
+    'players.all':'Tous les joueurs',
+    'players.add':'Ajouter un joueur',
+    'players.name':'Nom',
+    'players.namePlaceholder':'ex. Karim',
+    'players.addBtn':'Ajouter le joueur',
+    'players.session':'session','players.sessions':'sessions',
+    'players.pocketNet':'net caisse',
+    'modal.session':'Session',
+    'modal.edit':'Modifier','modal.cancel':'Annuler',
+    'modal.duration':'Durée',
+    'modal.ticketsUsed':'Tickets utilisés',
+    'modal.players':'Joueurs',
+    'modal.costPerPlayer':'Coût par joueur',
+    'modal.totalCost':'Coût total',
+    'modal.deleteSession':'Supprimer la session',
+    'modal.close':'Fermer',
+    'modal.hours':'Heures',
+    'modal.saveChanges':'Enregistrer',
+    'playerModal.contributed':'Versé',
+    'playerModal.consumed':'Consommé',
+    'playerModal.balance':'Solde',
+    'playerModal.sessionsPlayed':'Sessions jouées',
+    'playerModal.noSessionsYet':'Aucune session encore',
+    'playerModal.pocketContributions':'Contributions à la caisse',
+    'playerModal.bulkPurchase':'Achat groupé',
+    'playerModal.topup':'Versement',
+    'playerModal.bulkShare':'part achat groupé',
+    'playerModal.directTopup':'versement direct',
+    'playerModal.sub':'{n} sessions · €{amt} joué',
+    'bulkModal.title':'Achat groupé',
+    'bulkModal.titleWithDate':'Achat · {date}',
+    'bulkModal.date':'Date','bulkModal.tickets':'Tickets','bulkModal.cost':'Coût (€)',
+    'bulkModal.payers':'Payeurs',
+    'bulkModal.saveChanges':'Enregistrer',
+    'bulkModal.deleteBulk':"Supprimer l'achat",
+    'topupModal.title':'Versements à la caisse',
+    'topupModal.noneYet':'Aucun versement encore',
+    'toast.pickDateAndPlayer':'Choisissez une date et au moins 1 joueur',
+    'toast.saving':'Enregistrement…',
+    'toast.sessionRecorded':'Session enregistrée ✓',
+    'toast.fillDateTicketsCost':'Remplissez la date, les tickets et le coût',
+    'toast.selectPayerOrPocket':'Sélectionnez au moins un payeur, ou choisissez « Via la caisse »',
+    'toast.poolUpdated':'Réserve : {rem} + {tickets} = {total} tickets ✓',
+    'toast.fillPlayerAmountDate':'Remplissez le joueur, le montant et la date',
+    'toast.topupAdded':'€{amount} ajouté pour {player} ✓',
+    'toast.enterName':'Entrez un nom',
+    'toast.alreadyExists':'Déjà existant',
+    'toast.playerAdded':'{name} ajouté ✓',
+    'toast.sessionUpdated':'Session mise à jour ✓',
+    'toast.deleted':'Supprimé',
+    'toast.cannotDeleteOnlyBulk':'Impossible de supprimer le seul achat',
+    'toast.bulkUpdated':'Achat mis à jour ✓',
+    'toast.fillAllFields':'Remplissez tous les champs',
+    'toast.photoSaving':'Enregistrement de la photo…',
+    'toast.photoUpdated':'Photo mise à jour ✓',
+    'toast.chooseImage':'Veuillez choisir une image',
+    'toast.couldNotReadImage':'Impossible de lire cette image',
+    'toast.couldNotReadFile':'Impossible de lire ce fichier',
+    'toast.syncError':'Erreur de synchronisation',
+    'toast.offlineDefault':'Hors ligne — données par défaut affichées',
+    'loading.text':'Chargement des données…',
+    'auth.subtitleLogin':'Connectez-vous pour continuer',
+    'auth.subtitleLink':'Presque fini — quel joueur êtes-vous ?',
+    'auth.login':'Connexion','auth.signup':'Inscription',
+    'auth.emailPlaceholder':'Email','auth.passwordPlaceholder':'Mot de passe',
+    'auth.forgotPassword':'Mot de passe oublié ?',
+    'auth.yourName':'Votre nom',
+    'auth.passwordMin':'Mot de passe (6 caractères min.)',
+    'auth.createAccount':'Créer le compte',
+    'auth.continue':'Continuer',
+    'auth.loadingPlayers':'Chargement des joueurs…',
+    'auth.notListed':"+ Mon nom n'est pas listé",
+    'auth.pleasePickName':'Veuillez choisir ou saisir votre nom',
+    'auth.fillEmailPassword':'Veuillez remplir l\'email et le mot de passe',
+    'auth.enterEmailFirst':'Entrez votre email ci-dessus, puis cliquez sur « Mot de passe oublié ? »',
+    'auth.resetSent':'Si un compte existe avec cet email, un lien de réinitialisation vient d\'être envoyé.',
+    'auth.emailExists':'Un compte existe déjà avec cet email — essayez de vous connecter.',
+    'auth.emailNotFound':'Aucun compte trouvé avec cet email.',
+    'auth.incorrectCreds':'Email ou mot de passe incorrect.',
+    'auth.weakPassword':'Le mot de passe doit contenir au moins 6 caractères.',
+    'auth.invalidEmail':'Veuillez saisir une adresse email valide.',
+    'auth.tooManyAttempts':'Trop de tentatives — veuillez patienter puis réessayer.',
+    'aria.logout':'Déconnexion','aria.close':'Fermer'
+  }
+};
+const LANG_STORAGE_KEY='padel_lang_v1';
+let appLang=(function(){
+  try{const saved=localStorage.getItem(LANG_STORAGE_KEY);if(saved==='en'||saved==='fr')return saved;}catch(e){}
+  return(navigator.language||'').toLowerCase().startsWith('fr')?'fr':'en';
+})();
+function t(key,vars){
+  let s=(STRINGS[appLang]&&STRINGS[appLang][key])||(STRINGS.en&&STRINGS.en[key])||key;
+  if(vars)Object.keys(vars).forEach(k=>{s=s.split('{'+k+'}').join(vars[k]);});
+  return s;
+}
+function applyI18n(root){
+  (root||document).querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=t(el.getAttribute('data-i18n'));});
+  (root||document).querySelectorAll('[data-i18n-ph]').forEach(el=>{el.setAttribute('placeholder',t(el.getAttribute('data-i18n-ph')));});
+  (root||document).querySelectorAll('[data-i18n-aria]').forEach(el=>{el.setAttribute('aria-label',t(el.getAttribute('data-i18n-aria')));});
+  document.documentElement.lang=appLang;
+  const lb=document.getElementById('langToggleBtn');if(lb)lb.textContent=appLang==='en'?'FR':'EN';
+  const lba=document.getElementById('langToggleBtnAuth');if(lba)lba.textContent=appLang==='en'?'FR':'EN';
+}
+function setLang(lang){
+  appLang=lang;
+  try{localStorage.setItem(LANG_STORAGE_KEY,lang);}catch(e){}
+  applyI18n();
+  if(typeof renderAll==='function'&&document.getElementById('loadingOverlay')&&document.getElementById('loadingOverlay').style.display!=='flex'){
+    renderAll();
+    if(document.getElementById('panel-add').classList.contains('active'))renderAdd();
+    if(document.getElementById('panel-players').classList.contains('active'))renderPlayers();
+  }
+  if(typeof currentPlayerName!=='undefined'&&currentPlayerName){
+    const hs=document.getElementById('headerSub');if(hs)hs.textContent=t('header.greeting',{name:currentPlayerName});
+  }
+}
+function toggleLang(){setLang(appLang==='en'?'fr':'en');}
+</script>
 
 <style>
 #authScreen{
@@ -213,37 +550,39 @@
 #authScreen .auth-btn:active{transform:scale(0.98)}
 #authScreen .auth-link{text-align:center;font-size:12.5px;color:rgba(255,255,255,0.7);margin-top:14px;cursor:pointer;text-decoration:underline}
 #authScreen .auth-error{min-height:18px;font-size:12.5px;color:#ffb3b3;text-align:center;margin-top:10px}
+#authScreen .lang-toggle{position:absolute;top:18px;right:18px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:14px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font)}
 </style>
 
 <div id="authScreen">
+  <button class="lang-toggle" id="langToggleBtnAuth" onclick="toggleLang()">FR</button>
   <div class="auth-logo">🎾</div>
-  <div class="auth-title">Padel Tracker</div>
-  <div class="auth-subtitle" id="authSubtitle">Log in to continue</div>
+  <div class="auth-title" data-i18n="app.title">Padel Tracker</div>
+  <div class="auth-subtitle" id="authSubtitle" data-i18n="auth.subtitleLogin">Log in to continue</div>
   <div class="auth-card">
     <div class="auth-tabs" id="authTabs">
-      <button class="auth-tab active" id="tabLogin" onclick="showAuthForm('login')">Log in</button>
-      <button class="auth-tab" id="tabSignup" onclick="showAuthForm('signup')">Sign up</button>
+      <button class="auth-tab active" id="tabLogin" onclick="showAuthForm('login')" data-i18n="auth.login">Log in</button>
+      <button class="auth-tab" id="tabSignup" onclick="showAuthForm('signup')" data-i18n="auth.signup">Sign up</button>
     </div>
 
     <div id="authFormLogin">
-      <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
-      <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
-      <button class="auth-btn" onclick="doLogin()">Log in</button>
-      <div class="auth-link" onclick="doForgotPassword()">Forgot password?</div>
+      <input type="email" id="loginEmail" placeholder="Email" data-i18n-ph="auth.emailPlaceholder" autocomplete="email">
+      <input type="password" id="loginPassword" placeholder="Password" data-i18n-ph="auth.passwordPlaceholder" autocomplete="current-password">
+      <button class="auth-btn" onclick="doLogin()" data-i18n="auth.login">Log in</button>
+      <div class="auth-link" onclick="doForgotPassword()" data-i18n="auth.forgotPassword">Forgot password?</div>
     </div>
 
     <div id="authFormSignup" style="display:none">
-      <select id="signupPlayerSelect" onchange="toggleSignupNewName()"><option>Loading players…</option></select>
-      <input type="text" id="signupNewName" placeholder="Your name" style="display:none">
-      <input type="email" id="signupEmail" placeholder="Email" autocomplete="email">
-      <input type="password" id="signupPassword" placeholder="Password (min 6 characters)" autocomplete="new-password">
-      <button class="auth-btn" onclick="doSignup()">Create account</button>
+      <select id="signupPlayerSelect" onchange="toggleSignupNewName()"><option data-i18n="auth.loadingPlayers">Loading players…</option></select>
+      <input type="text" id="signupNewName" placeholder="Your name" data-i18n-ph="auth.yourName" style="display:none">
+      <input type="email" id="signupEmail" placeholder="Email" data-i18n-ph="auth.emailPlaceholder" autocomplete="email">
+      <input type="password" id="signupPassword" placeholder="Password (min 6 characters)" data-i18n-ph="auth.passwordMin" autocomplete="new-password">
+      <button class="auth-btn" onclick="doSignup()" data-i18n="auth.createAccount">Create account</button>
     </div>
 
     <div id="authFormLink" style="display:none">
-      <select id="linkPlayerSelect" onchange="toggleLinkNewName()"><option>Loading players…</option></select>
-      <input type="text" id="linkNewName" placeholder="Your name" style="display:none">
-      <button class="auth-btn" onclick="confirmAccountLink()">Continue</button>
+      <select id="linkPlayerSelect" onchange="toggleLinkNewName()"><option data-i18n="auth.loadingPlayers">Loading players…</option></select>
+      <input type="text" id="linkNewName" placeholder="Your name" data-i18n-ph="auth.yourName" style="display:none">
+      <button class="auth-btn" onclick="confirmAccountLink()" data-i18n="auth.continue">Continue</button>
     </div>
 
     <div class="auth-error" id="authError"></div>
@@ -275,12 +614,12 @@ async function authRequest(endpoint,body){
   return data;
 }
 function friendlyAuthError(msg){
-  if(msg.includes('EMAIL_EXISTS'))return'An account with that email already exists — try logging in instead.';
-  if(msg.includes('EMAIL_NOT_FOUND'))return'No account found with that email.';
-  if(msg.includes('INVALID_PASSWORD')||msg.includes('INVALID_LOGIN_CREDENTIALS'))return'Incorrect email or password.';
-  if(msg.includes('WEAK_PASSWORD'))return'Password must be at least 6 characters.';
-  if(msg.includes('INVALID_EMAIL'))return'Please enter a valid email address.';
-  if(msg.includes('TOO_MANY_ATTEMPTS_TRY_LATER'))return'Too many attempts — please wait a bit and try again.';
+  if(msg.includes('EMAIL_EXISTS'))return t('auth.emailExists');
+  if(msg.includes('EMAIL_NOT_FOUND'))return t('auth.emailNotFound');
+  if(msg.includes('INVALID_PASSWORD')||msg.includes('INVALID_LOGIN_CREDENTIALS'))return t('auth.incorrectCreds');
+  if(msg.includes('WEAK_PASSWORD'))return t('auth.weakPassword');
+  if(msg.includes('INVALID_EMAIL'))return t('auth.invalidEmail');
+  if(msg.includes('TOO_MANY_ATTEMPTS_TRY_LATER'))return t('auth.tooManyAttempts');
   return msg;
 }
 function showAuthError(msg,isInfo){
@@ -308,7 +647,7 @@ function showAuthForm(mode){
   document.getElementById('authFormSignup').style.display=mode==='signup'?'block':'none';
   document.getElementById('authFormLink').style.display=mode==='link'?'block':'none';
   document.getElementById('authTabs').style.display=mode==='link'?'none':'flex';
-  document.getElementById('authSubtitle').textContent=mode==='link'?'Almost there — which player are you?':'Log in to continue';
+  document.getElementById('authSubtitle').textContent=mode==='link'?t('auth.subtitleLink'):t('auth.subtitleLogin');
   if(mode==='login'||mode==='signup'){
     document.getElementById('tabLogin').classList.toggle('active',mode==='login');
     document.getElementById('tabSignup').classList.toggle('active',mode==='signup');
@@ -321,7 +660,7 @@ async function populateSignupPlayerList(){
   if(_signupPlayersLoaded)return;
   const sel=document.getElementById('signupPlayerSelect');
   const list=toPlayerList(await authFbGet('/state/players'));
-  sel.innerHTML=list.map(p=>'<option value="'+p+'">'+p+'</option>').join('')+'<option value="__other__">+ My name isn\'t listed</option>';
+  sel.innerHTML=list.map(p=>'<option value="'+p+'">'+p+'</option>').join('')+'<option value="__other__">'+t('auth.notListed')+'</option>';
   _signupPlayersLoaded=true;
   toggleSignupNewName();
 }
@@ -331,7 +670,7 @@ function toggleSignupNewName(){
 async function populateLinkPlayerList(){
   const sel=document.getElementById('linkPlayerSelect');
   const list=toPlayerList(await authFbGet('/state/players'));
-  sel.innerHTML=list.map(p=>'<option value="'+p+'">'+p+'</option>').join('')+'<option value="__other__">+ My name isn\'t listed</option>';
+  sel.innerHTML=list.map(p=>'<option value="'+p+'">'+p+'</option>').join('')+'<option value="__other__">'+t('auth.notListed')+'</option>';
   toggleLinkNewName();
 }
 function toggleLinkNewName(){
@@ -360,8 +699,8 @@ async function doSignup(){
   const chosenName=sel.value==='__other__'?document.getElementById('signupNewName').value.trim():sel.value;
   const email=document.getElementById('signupEmail').value.trim();
   const password=document.getElementById('signupPassword').value;
-  if(!chosenName){showAuthError('Please pick or enter your name');return;}
-  if(!email||!password){showAuthError('Please fill in email and password');return;}
+  if(!chosenName){showAuthError(t('auth.pleasePickName'));return;}
+  if(!email||!password){showAuthError(t('auth.fillEmailPassword'));return;}
   try{
     const data=await authRequest('signUp',{email,password,returnSecureToken:true});
     if(sel.value==='__other__')await ensurePlayerExists(chosenName);
@@ -372,7 +711,7 @@ async function doSignup(){
 async function doLogin(){
   const email=document.getElementById('loginEmail').value.trim();
   const password=document.getElementById('loginPassword').value;
-  if(!email||!password){showAuthError('Please fill in email and password');return;}
+  if(!email||!password){showAuthError(t('auth.fillEmailPassword'));return;}
   try{
     const data=await authRequest('signInWithPassword',{email,password,returnSecureToken:true});
     const name=await lookupPlayerForUid(data.localId);
@@ -388,7 +727,7 @@ async function doLogin(){
 async function confirmAccountLink(){
   const sel=document.getElementById('linkPlayerSelect');
   const chosenName=sel.value==='__other__'?document.getElementById('linkNewName').value.trim():sel.value;
-  if(!chosenName){showAuthError('Please pick or enter your name');return;}
+  if(!chosenName){showAuthError(t('auth.pleasePickName'));return;}
   if(!_pendingAuthData)return;
   if(sel.value==='__other__')await ensurePlayerExists(chosenName);
   await linkAccountToPlayer(_pendingAuthData.localId,chosenName);
@@ -396,10 +735,10 @@ async function confirmAccountLink(){
 }
 async function doForgotPassword(){
   const email=document.getElementById('loginEmail').value.trim();
-  if(!email){showAuthError('Enter your email above first, then tap "Forgot password?"');return;}
+  if(!email){showAuthError(t('auth.enterEmailFirst'));return;}
   try{
     await authRequest('sendOobCode',{requestType:'PASSWORD_RESET',email});
-    showAuthError('If that email has an account, a reset link was just sent.',true);
+    showAuthError(t('auth.resetSent'),true);
   }catch(e){showAuthError(friendlyAuthError(e.message));}
 }
 
@@ -447,21 +786,22 @@ function tryRestoreSession(){
 <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 <div id="loadingOverlay" style="display:flex;position:fixed;inset:0;background:linear-gradient(160deg,rgba(21,56,68,.97) 0%,rgba(45,110,126,.97) 100%);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:16px">
   <div style="width:48px;height:48px;border:4px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.8s linear infinite"></div>
-  <div style="color:#fff;font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif">Loading shared data…</div>
+  <div style="color:#fff;font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif" data-i18n="loading.text">Loading shared data…</div>
 </div>
 
 <div class="header">
   <div class="header-top">
     <div>
-      <div class="header-title">Padel Tracker 🎾</div>
-      <div class="header-sub" id="headerSub">Split payments, no drama</div>
+      <div class="header-title" data-i18n="app.title">Padel Tracker 🎾</div>
+      <div class="header-sub" id="headerSub" data-i18n="header.subtitle">Split payments, no drama</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       <div class="ticket-pill" id="ticketPill">
         <i class="ti ti-ticket"></i>
-        <span id="ticketRemaining">--</span> left
+        <span id="ticketRemaining">--</span>&nbsp;<span data-i18n="ticket.left">left</span>
       </div>
-      <button onclick="logout()" aria-label="Log out" style="background:rgba(255,255,255,0.18);border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:14px;flex-shrink:0">
+      <button onclick="toggleLang()" id="langToggleBtn" style="background:rgba(255,255,255,0.18);border:none;border-radius:14px;padding:0 10px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:12px;font-weight:700;flex-shrink:0">FR</button>
+      <button onclick="logout()" aria-label="Log out" data-i18n-aria="aria.logout" style="background:rgba(255,255,255,0.18);border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:14px;flex-shrink:0">
         <i class="ti ti-logout"></i>
       </button>
     </div>
@@ -470,31 +810,29 @@ function tryRestoreSession(){
 
 <nav class="nav">
   <button class="nav-btn active" onclick="showPanel('dashboard')" id="tab-dashboard">
-    <i class="ti ti-chart-pie"></i>Dashboard
+    <i class="ti ti-chart-pie"></i><span data-i18n="nav.dashboard">Dashboard</span>
   </button>
   <button class="nav-btn" onclick="showPanel('sessions')" id="tab-sessions">
-    <i class="ti ti-calendar-event"></i>Sessions
+    <i class="ti ti-calendar-event"></i><span data-i18n="nav.sessions">Sessions</span>
   </button>
   <button class="nav-btn" onclick="showPanel('add')" id="tab-add">
-    <i class="ti ti-plus"></i>Add
+    <i class="ti ti-plus"></i><span data-i18n="nav.add">Add</span>
   </button>
   <button class="nav-btn" onclick="showPanel('players')" id="tab-players">
-    <i class="ti ti-users"></i>Players
+    <i class="ti ti-users"></i><span data-i18n="nav.players">Players</span>
   </button>
 </nav>
 
 <!-- DASHBOARD -->
 <div class="panel active" id="panel-dashboard">
   <div id="bulkSummary"></div>
-  <div class="section-label">🏦 Shared Pocket</div>
+  <div class="section-label" data-i18n="dashboard.pocketSection">🏦 Shared Pocket</div>
   <div id="pocketSummary"></div>
-  <div class="section-label" style="margin-top:4px">Player contributions</div>
-  <div class="card" id="pocketPlayerList"></div>
-  <div class="section-label" style="margin-top:16px">Player balances</div>
+  <div class="section-label" style="margin-top:16px" data-i18n="dashboard.playerBalances">Player balances</div>
   <div class="card" id="balanceList"></div>
-  <div class="section-label" style="margin-top:16px">Bulk purchases</div>
+  <div class="section-label" style="margin-top:16px" data-i18n="dashboard.bulkPurchases">Bulk purchases</div>
   <div id="bulkHistoryList"></div>
-  <div class="section-label" style="margin-top:16px">Quick stats</div>
+  <div class="section-label" style="margin-top:16px" data-i18n="dashboard.quickStats">Quick stats</div>
   <div class="metrics" id="quickStats"></div>
 </div>
 
@@ -505,68 +843,68 @@ function tryRestoreSession(){
 
 <!-- ADD SESSION / BULK -->
 <div class="panel" id="panel-add">
-  <div class="section-label">Record a session</div>
+  <div class="section-label" data-i18n="add.recordSession">Record a session</div>
   <div style="font-size:12px;color:var(--text3);margin-bottom:10px" id="ticketPoolInfo"></div>
   <div class="card">
     <div class="field">
-      <label>Date</label>
+      <label data-i18n="add.date">Date</label>
       <input type="date" id="sessionDate">
     </div>
     <div class="field-row">
       <div class="field">
-        <label>Hours played</label>
+        <label data-i18n="add.hoursPlayed">Hours played</label>
         <select id="sessionHours">
-          <option value="1">1 hour</option>
-          <option value="1.5">1.5 hours</option>
-          <option value="2" selected>2 hours</option>
-          <option value="2.5">2.5 hours</option>
-          <option value="3">3 hours</option>
+          <option value="1" data-i18n="add.hour1">1 hour</option>
+          <option value="1.5" data-i18n="add.hour1_5">1.5 hours</option>
+          <option value="2" selected data-i18n="add.hour2">2 hours</option>
+          <option value="2.5" data-i18n="add.hour2_5">2.5 hours</option>
+          <option value="3" data-i18n="add.hour3">3 hours</option>
         </select>
       </div>
       <div class="field">
-        <label>Tickets/hr</label>
+        <label data-i18n="add.ticketsPerHour">Tickets/hr</label>
         <input type="number" id="ticketsPerHour" value="8" min="1">
       </div>
     </div>
     <div class="field">
-      <label>Who played?</label>
+      <label data-i18n="add.whoPlayed">Who played?</label>
       <div class="player-checks" id="sessionPlayers"></div>
     </div>
     <div class="card-sm" style="background:var(--green-light);border-color:#b8dfc8" id="sessionPreview">
-      <div style="font-size:12px;color:var(--green);font-weight:500">Cost preview</div>
+      <div style="font-size:12px;color:var(--green);font-weight:500" data-i18n="add.costPreview">Cost preview</div>
       <div style="font-size:20px;font-weight:700;color:var(--green);letter-spacing:-0.5px" id="previewAmt">—</div>
       <div style="font-size:12px;color:var(--green);opacity:.7" id="previewDetail"></div>
     </div>
     <button class="btn btn-primary" onclick="addSession()">
-      <i class="ti ti-check" style="margin-right:6px"></i>Record Session
+      <i class="ti ti-check" style="margin-right:6px"></i><span data-i18n="add.recordSessionBtn">Record Session</span>
     </button>
   </div>
 
   <div class="divider"></div>
-  <div class="section-label">New bulk purchase</div>
+  <div class="section-label" data-i18n="add.newBulkPurchase">New bulk purchase</div>
   <div class="card">
     <div class="field">
-      <label>Purchase date</label>
+      <label data-i18n="add.purchaseDate">Purchase date</label>
       <input type="date" id="bulkDate">
     </div>
     <div class="field-row">
       <div class="field">
-        <label>Total tickets</label>
+        <label data-i18n="add.totalTickets">Total tickets</label>
         <input type="number" id="bulkTickets" value="72" min="1">
       </div>
       <div class="field">
-        <label>Total cost (€)</label>
+        <label data-i18n="add.totalCost">Total cost (€)</label>
         <input type="number" id="bulkCost" value="260" min="0">
       </div>
     </div>
     <div class="field">
-      <label>How was this paid?</label>
+      <label data-i18n="add.howPaid">How was this paid?</label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
-        <button type="button" id="payModePlayer" onclick="setBulkPayMode('players')"
+        <button type="button" id="payModePlayer" onclick="setBulkPayMode('players')" data-i18n="add.byPlayers"
           style="padding:10px;border-radius:10px;border:2px solid var(--green);background:var(--green);color:#fff;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:.15s">
           👤 By players
         </button>
-        <button type="button" id="payModePocket" onclick="setBulkPayMode('pocket')"
+        <button type="button" id="payModePocket" onclick="setBulkPayMode('pocket')" data-i18n="add.fromPocketBtn"
           style="padding:10px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text2);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:.15s">
           🏦 From pocket
         </button>
@@ -574,62 +912,62 @@ function tryRestoreSession(){
     </div>
     <div id="bulkPayerSection">
       <div class="field">
-        <label>Who paid?</label>
+        <label data-i18n="add.whoPaid">Who paid?</label>
         <div class="player-checks" id="bulkPayers"></div>
       </div>
       <div class="field">
-        <label>How much did each pay? (€)</label>
+        <label data-i18n="add.howMuchEach">How much did each pay? (€)</label>
         <div id="bulkAmounts"></div>
       </div>
     </div>
     <div id="bulkPreview" style="font-size:12px;color:var(--text3);background:var(--surface);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:10px"></div>
     <button class="btn btn-primary" onclick="addBulk()">
-      <i class="ti ti-shopping-cart" style="margin-right:6px"></i>Record Bulk Purchase
+      <i class="ti ti-shopping-cart" style="margin-right:6px"></i><span data-i18n="add.recordBulkBtn">Record Bulk Purchase</span>
     </button>
   </div>
 
   <div class="divider"></div>
-  <div class="section-label">💰 Add money to the pocket</div>
+  <div class="section-label" data-i18n="add.addMoneyToPocket">💰 Add money to the pocket</div>
   <div class="card">
-    <div style="font-size:13px;color:var(--text3);margin-bottom:12px;line-height:1.5">
+    <div style="font-size:13px;color:var(--text3);margin-bottom:12px;line-height:1.5" data-i18n="add.topupDesc">
       Record a direct top-up — a monthly contribution, a lump sum, or any cash added outside of sessions.
     </div>
     <div class="field">
-      <label>Player</label>
+      <label data-i18n="add.player">Player</label>
       <select id="topupPlayer"></select>
     </div>
     <div class="field-row">
       <div class="field">
-        <label>Amount (€)</label>
+        <label data-i18n="add.amount">Amount (€)</label>
         <input type="number" id="topupAmount" placeholder="50" min="0" step="0.01">
       </div>
       <div class="field">
-        <label>Date</label>
+        <label data-i18n="add.date">Date</label>
         <input type="date" id="topupDate">
       </div>
     </div>
     <div class="field">
-      <label>Note (optional)</label>
-      <input type="text" id="topupNote" placeholder="e.g. Monthly May, cash">
+      <label data-i18n="add.note">Note (optional)</label>
+      <input type="text" id="topupNote" placeholder="e.g. Monthly May, cash" data-i18n-ph="add.notePlaceholder">
     </div>
     <button class="btn btn-primary" onclick="addTopup()">
-      <i class="ti ti-piggy-bank" style="margin-right:6px"></i>Add to pocket
+      <i class="ti ti-piggy-bank" style="margin-right:6px"></i><span data-i18n="add.addToPocketBtn">Add to pocket</span>
     </button>
   </div>
 </div>
 
 <!-- PLAYERS -->
 <div class="panel" id="panel-players">
-  <div class="section-label">All players</div>
+  <div class="section-label" data-i18n="players.all">All players</div>
   <div id="playerDetailList"></div>
   <div class="divider"></div>
-  <div class="section-label">Add a player</div>
+  <div class="section-label" data-i18n="players.add">Add a player</div>
   <div class="card">
     <div class="field">
-      <label>Name</label>
-      <input type="text" id="newPlayerName" placeholder="e.g. Karim">
+      <label data-i18n="players.name">Name</label>
+      <input type="text" id="newPlayerName" placeholder="e.g. Karim" data-i18n-ph="players.namePlaceholder">
     </div>
-    <button class="btn btn-primary" onclick="addPlayer()">Add player</button>
+    <button class="btn btn-primary" onclick="addPlayer()" data-i18n="players.addBtn">Add player</button>
   </div>
 </div>
 
@@ -638,13 +976,13 @@ function tryRestoreSession(){
   <div class="modal">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div class="modal-title" id="modalTitle" style="margin-bottom:0">Session</div>
-      <button id="modalEditToggle" onclick="toggleSessionEdit()" style="background:var(--green-light);color:var(--teal-600);border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Edit</button>
+      <div class="modal-title" id="modalTitle" style="margin-bottom:0" data-i18n="modal.session">Session</div>
+      <button id="modalEditToggle" onclick="toggleSessionEdit()" data-i18n="modal.edit" style="background:var(--green-light);color:var(--teal-600);border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Edit</button>
     </div>
     <div id="modalContent"></div>
     <div id="modalEditContent" style="display:none"></div>
-    <button class="btn btn-danger" id="modalDeleteBtn">Delete session</button>
-    <button class="btn btn-outline" onclick="closeModal()">Close</button>
+    <button class="btn btn-danger" id="modalDeleteBtn" data-i18n="modal.deleteSession">Delete session</button>
+    <button class="btn btn-outline" onclick="closeModal()" data-i18n="modal.close">Close</button>
   </div>
 </div>
 
@@ -653,7 +991,7 @@ function tryRestoreSession(){
   <div class="modal" style="max-height:92vh">
     <div class="modal-handle"></div>
     <div style="display:flex;justify-content:flex-end;margin-bottom:-8px">
-      <button onclick="closePlayerModal()" aria-label="Close" style="background:var(--surface);border:none;border-radius:50%;width:30px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:14px">
+      <button onclick="closePlayerModal()" aria-label="Close" data-i18n-aria="aria.close" style="background:var(--surface);border:none;border-radius:50%;width:30px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:14px">
         <i class="ti ti-x"></i>
       </button>
     </div>
@@ -669,7 +1007,7 @@ function tryRestoreSession(){
       <div style="font-size:13px;color:var(--text3)" id="playerModalSub"></div>
     </div>
     <div id="playerModalContent"></div>
-    <button class="btn btn-outline" onclick="closePlayerModal()" style="margin-top:8px">Close</button>
+    <button class="btn btn-outline" onclick="closePlayerModal()" style="margin-top:8px" data-i18n="modal.close">Close</button>
   </div>
 </div>
 
@@ -677,10 +1015,10 @@ function tryRestoreSession(){
 <div class="modal-bg" id="bulkModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title" id="bulkModalTitle">Bulk Purchase</div>
+    <div class="modal-title" id="bulkModalTitle" data-i18n="bulkModal.title">Bulk Purchase</div>
     <div id="bulkModalContent"></div>
-    <button class="btn btn-danger" id="bulkModalDeleteBtn">Delete bulk</button>
-    <button class="btn btn-outline" onclick="closeBulkModal()">Close</button>
+    <button class="btn btn-danger" id="bulkModalDeleteBtn" data-i18n="bulkModal.deleteBulk">Delete bulk</button>
+    <button class="btn btn-outline" onclick="closeBulkModal()" data-i18n="modal.close">Close</button>
   </div>
 </div>
 
@@ -688,9 +1026,9 @@ function tryRestoreSession(){
 <div class="modal-bg" id="topupModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Pocket top-ups</div>
+    <div class="modal-title" data-i18n="topupModal.title">Pocket top-ups</div>
     <div id="topupModalContent"></div>
-    <button class="btn btn-outline" onclick="closeTopupModal()" style="margin-top:8px">Close</button>
+    <button class="btn btn-outline" onclick="closeTopupModal()" style="margin-top:8px" data-i18n="modal.close">Close</button>
   </div>
 </div>
 
@@ -781,7 +1119,7 @@ async function saveState(){
   if(isSyncing)return;
   isSyncing=true;
   try{await fbSet('/state',state);}
-  catch(e){showToast('Sync error');}
+  catch(e){showToast(t('toast.syncError'));}
   finally{isSyncing=false;}
 }
 
@@ -799,7 +1137,7 @@ async function initApp(){
       await fbSet('/state',DEFAULT_STATE);
       state=normaliseState(DEFAULT_STATE);
     }
-  }catch(e){showToast('Offline — showing default data');}
+  }catch(e){showToast(t('toast.offlineDefault'));}
   showLoading(false);
   renderAll();
   startRealtimeSync();
@@ -864,12 +1202,12 @@ function renderDashboard(){
 
   document.getElementById('bulkSummary').innerHTML=purchased?`
     <div class="bulk-highlight" style="margin-bottom:14px">
-      <div class="bulk-title">Ticket pool · ${state.bulks.length} bulk${state.bulks.length>1?'s':''} total</div>
-      <div class="bulk-val">${rem} <span style="font-size:18px;font-weight:400;opacity:.8">tickets left</span></div>
-      <div class="bulk-sub">${used} used of ${purchased} · €${price.toFixed(2)}/ticket</div>
+      <div class="bulk-title">${t('bulk.ticketPool')} · ${state.bulks.length} bulk${state.bulks.length>1?'s':''} total</div>
+      <div class="bulk-val">${rem} <span style="font-size:18px;font-weight:400;opacity:.8">${t('bulk.ticketsLeft')}</span></div>
+      <div class="bulk-sub">${t('bulk.usedOf',{used,purchased,price:price.toFixed(2)})}</div>
       <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
     </div>
-  `:'<div class="card" style="text-align:center;color:var(--text3);padding:20px">No bulk purchases yet</div>';
+  `:'<div class="card" style="text-align:center;color:var(--text3);padding:20px">'+t('dashboard.noBulks')+'</div>';
 
   const bal=pocketBalance(),totalIn=pocketTotalIn();
   const bulkCosts=pocketTotalBulkCosts(),topups=pocketTotalTopups(),bulkPaid=pocketTotalBulkPaid();
@@ -881,60 +1219,43 @@ function renderDashboard(){
     <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
         <div style="text-align:center">
-          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">Ever paid in</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">${t('pocket.everPaidIn')}</div>
           <div style="font-size:18px;font-weight:600;color:var(--green)">€${totalIn.toFixed(0)}</div>
         </div>
         <div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border)">
-          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">Spent on bulks</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">${t('pocket.spentOnBulks')}</div>
           <div style="font-size:18px;font-weight:600;color:var(--amber)">€${bulkCosts.toFixed(0)}</div>
         </div>
         <div style="text-align:center">
-          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">Cash now</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:3px">${t('pocket.cashNow')}</div>
           <div style="font-size:18px;font-weight:600;color:${bal>=0?'var(--green)':'var(--danger)'}">€${bal.toFixed(0)}</div>
         </div>
       </div>
-      <div style="font-size:12px;color:var(--text3);margin-bottom:6px">Savings toward next bulk (est. €${nextBulkCost.toFixed(0)}) · ${pocketPct}%</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:6px">${t('pocket.savingsToward',{cost:nextBulkCost.toFixed(0),pct:pocketPct})}</div>
       <div style="background:var(--border);border-radius:10px;height:8px;margin-bottom:10px">
         <div style="background:var(--green);border-radius:10px;height:8px;width:${pocketPct}%;transition:.4s"></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div style="font-size:12px;color:var(--text3);line-height:1.8">
-          <span style="color:var(--text2)">Bulk payments:</span> €${bulkPaid.toFixed(2)}&nbsp;&nbsp;
-          <span style="color:var(--text2)">Direct top-ups:</span> €${topups.toFixed(2)}
+          <span style="color:var(--text2)">${t('pocket.bulkPayments')}</span> €${bulkPaid.toFixed(2)}&nbsp;&nbsp;
+          <span style="color:var(--text2)">${t('pocket.directTopups')}</span> €${topups.toFixed(2)}
         </div>
-        <button class="btn-sm" onclick="openTopupModal()"><i class="ti ti-history" style="font-size:14px;vertical-align:-2px"></i> History</button>
+        <button class="btn-sm" onclick="openTopupModal()"><i class="ti ti-history" style="font-size:14px;vertical-align:-2px"></i> ${t('pocket.history')}</button>
       </div>
     </div>`;
-
-  document.getElementById('pocketPlayerList').innerHTML=state.players.map(p=>{
-    const c=playerPocketContribution(p),av=avatarColor(p);
-    const netCol=c.net>0.01?'var(--green)':c.net<-0.01?'var(--danger)':'var(--text3)';
-    const netLabel=c.net>0.01?'+€'+c.net.toFixed(2):c.net<-0.01?'-€'+Math.abs(c.net).toFixed(2):'settled';
-    const parts=[];
-    if(c.fromBulks>0)parts.push('bulk €'+c.fromBulks.toFixed(2));
-    if(c.fromTopups>0)parts.push('top-ups €'+c.fromTopups.toFixed(2));
-    if(c.consumed>0)parts.push('played €'+c.consumed.toFixed(2));
-    return'<div class="player-row" style="cursor:pointer" onclick="openPlayerProfile(\''+p+'\')">'
-      +avatarDiv(p)
-      +'<div style="flex:1;min-width:0"><div class="player-name">'+p+'</div>'
-      +'<div class="player-detail">'+(parts.join(' · ')||'no activity')+'</div></div>'
-      +'<div style="text-align:right"><div style="font-size:14px;font-weight:600;color:'+netCol+';font-family:var(--mono)">'+netLabel+'</div>'
-      +'<div style="font-size:10px;color:var(--text3)">pocket net</div></div>'
-      +'<i class="ti ti-chevron-right" style="font-size:15px;color:var(--text3);margin-left:4px"></i></div>';
-  }).join('');
 
   document.getElementById('balanceList').innerHTML=state.players.map(p=>{
     const c=playerPocketContribution(p),av=avatarColor(p);
     const col=c.net>0.01?'chip-green':c.net<-0.01?'chip-danger':'chip-gray';
-    const label=c.net>0.01?'+'+fmt(c.net)+' credit':c.net<-0.01?'owes '+fmt(c.net):'settled';
+    const label=c.net>0.01?'+'+fmt(c.net)+' '+t('balance.credit'):c.net<-0.01?t('balance.owes')+' '+fmt(c.net):t('balance.settled');
     const parts=[];
-    if(c.consumed>0)parts.push('played €'+c.consumed.toFixed(2));
-    if(c.fromBulks>0)parts.push('bulk €'+c.fromBulks.toFixed(2));
-    if(c.fromTopups>0)parts.push('top-ups €'+c.fromTopups.toFixed(2));
+    if(c.consumed>0)parts.push(t('player.played')+' €'+c.consumed.toFixed(2));
+    if(c.fromBulks>0)parts.push(t('player.bulk')+' €'+c.fromBulks.toFixed(2));
+    if(c.fromTopups>0)parts.push(t('player.topups')+' €'+c.fromTopups.toFixed(2));
     return'<div class="player-row" style="cursor:pointer" onclick="openPlayerProfile(\''+p+'\')">'
       +avatarDiv(p)
       +'<div style="flex:1;min-width:0"><div class="player-name">'+p+'</div>'
-      +'<div class="player-detail">'+(parts.join(' · ')||'no activity')+'</div></div>'
+      +'<div class="player-detail">'+(parts.join(' · ')||t('player.noActivity'))+'</div></div>'
       +'<span class="balance-chip '+col+'">'+label+'</span>'
       +'<i class="ti ti-chevron-right" style="font-size:15px;color:var(--text3);margin-left:6px"></i></div>';
   }).join('');
@@ -943,10 +1264,10 @@ function renderDashboard(){
   const totalHours=state.sessions.reduce((s,x)=>s+x.hours,0);
   const totalSpent=state.sessions.reduce((s,x)=>s+x.perPlayer*x.players.length,0);
   document.getElementById('quickStats').innerHTML=
-    '<div class="metric"><div class="metric-label">Sessions played</div><div class="metric-val">'+totalSessions+'</div></div>'
-    +'<div class="metric"><div class="metric-label">Hours on court</div><div class="metric-val">'+totalHours+'h</div></div>'
-    +'<div class="metric"><div class="metric-label">Tickets remaining</div><div class="metric-val green">'+rem+'</div></div>'
-    +'<div class="metric"><div class="metric-label">Total consumed</div><div class="metric-val">€'+totalSpent.toFixed(0)+'</div></div>';
+    '<div class="metric"><div class="metric-label">'+t('stats.sessionsPlayed')+'</div><div class="metric-val">'+totalSessions+'</div></div>'
+    +'<div class="metric"><div class="metric-label">'+t('stats.hoursOnCourt')+'</div><div class="metric-val">'+totalHours+'h</div></div>'
+    +'<div class="metric"><div class="metric-label">'+t('stats.ticketsRemaining')+'</div><div class="metric-val green">'+rem+'</div></div>'
+    +'<div class="metric"><div class="metric-label">'+t('stats.totalConsumed')+'</div><div class="metric-val">€'+totalSpent.toFixed(0)+'</div></div>';
   document.getElementById('ticketRemaining').textContent=rem;
 }
 
@@ -954,15 +1275,15 @@ function renderDashboard(){
 function renderSessions(){
   const sl=document.getElementById('sessionList');
   if(!state.sessions.length){
-    sl.innerHTML='<div class="empty"><i class="ti ti-calendar-off"></i><div class="empty-text">No sessions yet!</div></div>';
+    sl.innerHTML='<div class="empty"><i class="ti ti-calendar-off"></i><div class="empty-text">'+t('sessions.empty')+'</div></div>';
     return;
   }
   sl.innerHTML=[...state.sessions].sort((a,b)=>b.date.localeCompare(a.date)).map(s=>`
     <div class="session-card" onclick="openSession('${s.id}')">
       <div class="session-header">
         <div><div class="session-date">${fmtDate(s.date)}</div>
-        <div class="session-meta">${s.hours}h · ${s.tickets} tickets · ${s.players.length} players</div></div>
-        <div class="session-cost"><div class="session-total">€${s.perPlayer.toFixed(2)}</div><div class="session-per">per player</div></div>
+        <div class="session-meta">${s.hours}h · ${s.tickets} tickets · ${s.players.length} ${t('session.players')}</div></div>
+        <div class="session-cost"><div class="session-total">€${s.perPlayer.toFixed(2)}</div><div class="session-per">${t('session.perPlayer')}</div></div>
       </div>
       <div class="players-chips">${s.players.map(p=>'<span class="player-chip">'+p+'</span>').join('')}</div>
     </div>`).join('');
@@ -983,7 +1304,7 @@ function renderAdd(){
   document.getElementById('bulkDate').value=today;
   document.getElementById('topupDate').value=today;
   document.getElementById('topupPlayer').innerHTML=state.players.map(p=>'<option value="'+p+'"'+(p===currentPlayerName?' selected':'')+'>'+p+'</option>').join('');
-  document.getElementById('ticketPoolInfo').innerHTML=ticketsRemaining()+' tickets in pool · €'+latestTicketPrice().toFixed(2)+' each';
+  document.getElementById('ticketPoolInfo').innerHTML=t('add.ticketPoolInfo',{rem:ticketsRemaining(),price:latestTicketPrice().toFixed(2)});
   updateSessionPreview();updateBulkAmounts();updateBulkPreview();
 }
 
@@ -996,9 +1317,9 @@ function renderPlayers(){
     return'<div class="card-sm" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="openPlayerProfile(\''+p+'\')">'
       +avatarDiv(p)
       +'<div style="flex:1"><div style="font-weight:500;font-size:14px">'+p+'</div>'
-      +'<div style="font-size:12px;color:var(--text3)">'+nsess+' session'+(nsess!==1?'s':'')+'</div></div>'
+      +'<div style="font-size:12px;color:var(--text3)">'+nsess+' '+t(nsess!==1?'players.sessions':'players.session')+'</div></div>'
       +'<div style="text-align:right"><div style="font-size:13px;font-family:var(--mono);font-weight:500;color:'+netCol+'">'+(c.net>0.01?'+':'')+'€'+c.net.toFixed(2)+'</div>'
-      +'<div style="font-size:11px;color:var(--text3)">pocket net</div></div>'
+      +'<div style="font-size:11px;color:var(--text3)">'+t('players.pocketNet')+'</div></div>'
       +'<i class="ti ti-chevron-right" style="font-size:16px;color:var(--text3);flex-shrink:0"></i></div>';
   }).join('');
 }
@@ -1006,16 +1327,16 @@ function renderPlayers(){
 // ============ RENDER: BULK HISTORY ============
 function renderBulkHistory(){
   const el=document.getElementById('bulkHistoryList');if(!el)return;
-  if(!state.bulks.length){el.innerHTML='<div class="empty" style="padding:20px 0"><i class="ti ti-shopping-cart-off"></i><div class="empty-text">No bulks yet</div></div>';return;}
+  if(!state.bulks.length){el.innerHTML='<div class="empty" style="padding:20px 0"><i class="ti ti-shopping-cart-off"></i><div class="empty-text">'+t('bulk.noBulksYet')+'</div></div>';return;}
   el.innerHTML=[...state.bulks].sort((a,b)=>b.date.localeCompare(a.date)).map((b,i)=>{
     const payersText=Object.entries(b.payers).map(([p,v])=>p+' €'+v.toFixed(0)).join(' · ');
     const isLatest=i===0;
     return'<div class="session-card" onclick="openBulkModal(\''+b.id+'\')" style="'+(isLatest?'border-color:var(--green);':'')+'\">'
       +'<div class="session-header"><div>'
-      +'<div class="session-date">'+fmtDate(b.date)+(isLatest?' <span style="font-size:11px;background:var(--green-light);color:var(--green);padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle">latest</span>':'')+'</div>'
+      +'<div class="session-date">'+fmtDate(b.date)+(isLatest?' <span style="font-size:11px;background:var(--green-light);color:var(--green);padding:2px 7px;border-radius:10px;margin-left:6px;vertical-align:middle">'+t('bulk.latest')+'</span>':'')+'</div>'
       +'<div class="session-meta">'+b.totalTickets+' tickets · €'+b.totalCost.toFixed(2)+' · €'+b.ticketPrice.toFixed(2)+'/ticket</div>'
       +'</div><div class="session-cost"><div class="session-total">€'+b.totalCost.toFixed(0)+'</div>'
-      +'<div class="session-per">from pocket</div></div></div>'
+      +'<div class="session-per">'+t('bulk.fromPocket')+'</div></div></div>'
       +'<div style="font-size:12px;color:var(--text3);margin-top:2px">'+payersText+'</div></div>';
   }).join('');
 }
@@ -1038,15 +1359,15 @@ function updateSessionPreview(){
   const tph=parseInt(document.getElementById('ticketsPerHour').value)||8;
   const tickets=hours*tph,price=currentTicketPrice(),total=tickets*price;
   const per=players.length?total/players.length:0;
-  document.getElementById('previewAmt').textContent=players.length?'€'+per.toFixed(2)+'/player':'—';
-  document.getElementById('previewDetail').textContent=players.length?tickets+' tickets × €'+price.toFixed(2)+' = €'+total.toFixed(2)+' total':'Select players to preview';
+  document.getElementById('previewAmt').textContent=players.length?'€'+per.toFixed(2)+'/'+t('add.player').toLowerCase():'—';
+  document.getElementById('previewDetail').textContent=players.length?tickets+' tickets × €'+price.toFixed(2)+' = €'+total.toFixed(2)+' total':t('add.selectToPreview');
 }
 function updateBulkAmounts(){
   const players=getSelectedPlayers('bp-check');
   const cost=parseFloat(document.getElementById('bulkCost').value)||260;
   const share=players.length?(cost/players.length).toFixed(2):'—';
   const container=document.getElementById('bulkAmounts');
-  if(!players.length){container.innerHTML='<div style="font-size:13px;color:var(--text3)">Select payers above</div>';return;}
+  if(!players.length){container.innerHTML='<div style="font-size:13px;color:var(--text3)">'+t('add.selectPayersAbove')+'</div>';return;}
   container.innerHTML=players.map(p=>'<div class="field"><label>'+p+'</label><input type="number" id="bulk_amt_'+p+'" value="'+share+'" step="0.01" min="0"></div>').join('');
 }
 function updateBulkPreview(){
@@ -1064,10 +1385,10 @@ async function addSession(){
   const hours=parseFloat(document.getElementById('sessionHours').value);
   const tph=parseInt(document.getElementById('ticketsPerHour').value)||8;
   const players=getSelectedPlayers('sp-check');
-  if(!date||!players.length){showToast('Pick a date and at least 1 player');return;}
+  if(!date||!players.length){showToast(t('toast.pickDateAndPlayer'));return;}
   const tickets=hours*tph,perPlayer=(tickets*currentTicketPrice())/players.length;
   state.sessions.push({id:b36(),date,hours,tickets,players,perPlayer});
-  showToast('Saving…');await saveState();showToast('Session recorded ✓');renderAll();showPanel('sessions');
+  showToast(t('toast.saving'));await saveState();showToast(t('toast.sessionRecorded'));renderAll();showPanel('sessions');
 }
 let bulkPayMode='players'; // 'players' or 'pocket'
 function setBulkPayMode(mode){
@@ -1090,18 +1411,18 @@ async function addBulk(){
   const date=document.getElementById('bulkDate').value;
   const tickets=parseInt(document.getElementById('bulkTickets').value);
   const cost=parseFloat(document.getElementById('bulkCost').value);
-  if(!date||!tickets||!cost){showToast('Fill in date, tickets and cost');return;}
+  if(!date||!tickets||!cost){showToast(t('toast.fillDateTicketsCost'));return;}
   const payers={};
   if(bulkPayMode==='players'){
     const players=getSelectedPlayers('bp-check');
-    if(!players.length){showToast('Select at least one payer, or choose "From pocket"');return;}
+    if(!players.length){showToast(t('toast.selectPayerOrPocket'));return;}
     players.forEach(p=>{const v=parseFloat(document.getElementById('bulk_amt_'+p)?.value||0);if(v>0)payers[p]=v;});
   }
   // pocket mode: payers stays empty — cost is deducted from pocket balance automatically
   const rem=ticketsRemaining();
   state.bulks.push({id:b36(),date,totalTickets:tickets,totalCost:cost,payers,ticketPrice:cost/tickets});
-  showToast('Saving…');await saveState();
-  showToast('Pool: '+rem+' + '+tickets+' = '+ticketsRemaining()+' tickets ✓');
+  showToast(t('toast.saving'));await saveState();
+  showToast(t('toast.poolUpdated',{rem,tickets,total:ticketsRemaining()}));
   renderAll();showPanel('dashboard');
 }
 async function addTopup(){
@@ -1109,19 +1430,19 @@ async function addTopup(){
   const amount=parseFloat(document.getElementById('topupAmount').value);
   const date=document.getElementById('topupDate').value;
   const note=document.getElementById('topupNote').value.trim();
-  if(!player||!amount||!date){showToast('Fill in player, amount and date');return;}
+  if(!player||!amount||!date){showToast(t('toast.fillPlayerAmountDate'));return;}
   if(!state.topups)state.topups=[];
   state.topups.push({id:b36(),date,player,amount,note});
-  showToast('Saving…');await saveState();
+  showToast(t('toast.saving'));await saveState();
   document.getElementById('topupAmount').value='';document.getElementById('topupNote').value='';
-  showToast('€'+amount.toFixed(2)+' added for '+player+' ✓');renderAll();showPanel('dashboard');
+  showToast(t('toast.topupAdded',{amount:amount.toFixed(2),player}));renderAll();showPanel('dashboard');
 }
 async function addPlayer(){
   const name=document.getElementById('newPlayerName').value.trim();
-  if(!name){showToast('Enter a name');return;}
-  if(state.players.includes(name)){showToast('Already exists');return;}
+  if(!name){showToast(t('toast.enterName'));return;}
+  if(state.players.includes(name)){showToast(t('toast.alreadyExists'));return;}
   state.players.push(name);await saveState();
-  document.getElementById('newPlayerName').value='';showToast(name+' added ✓');renderAll();
+  document.getElementById('newPlayerName').value='';showToast(t('toast.playerAdded',{name}));renderAll();
 }
 
 // ============ MODALS ============
@@ -1130,16 +1451,16 @@ function openSession(id){
   const s=state.sessions.find(x=>x.id===id);if(!s)return;
   _editingSessionId=id;
   document.getElementById('modalTitle').textContent=fmtDate(s.date);
-  document.getElementById('modalEditToggle').textContent='Edit';
+  document.getElementById('modalEditToggle').textContent=t('modal.edit');
   document.getElementById('modalContent').style.display='';
   document.getElementById('modalEditContent').style.display='none';
   document.getElementById('modalContent').innerHTML=`
-    <div class="info-row"><span>Duration</span><span>${s.hours}h</span></div>
-    <div class="info-row"><span>Tickets used</span><span>${s.tickets}</span></div>
-    <div class="info-row"><span>Players</span><span>${s.players.length}</span></div>
-    <div class="info-row"><span>Cost per player</span><span>€${s.perPlayer.toFixed(2)}</span></div>
-    <div class="info-row"><span>Total cost</span><span>€${(s.perPlayer*s.players.length).toFixed(2)}</span></div>
-    <div style="margin-top:12px;font-size:13px;color:var(--text3);margin-bottom:6px;font-weight:500">Players</div>
+    <div class="info-row"><span>${t('modal.duration')}</span><span>${s.hours}h</span></div>
+    <div class="info-row"><span>${t('modal.ticketsUsed')}</span><span>${s.tickets}</span></div>
+    <div class="info-row"><span>${t('modal.players')}</span><span>${s.players.length}</span></div>
+    <div class="info-row"><span>${t('modal.costPerPlayer')}</span><span>€${s.perPlayer.toFixed(2)}</span></div>
+    <div class="info-row"><span>${t('modal.totalCost')}</span><span>€${(s.perPlayer*s.players.length).toFixed(2)}</span></div>
+    <div style="margin-top:12px;font-size:13px;color:var(--text3);margin-bottom:6px;font-weight:500">${t('modal.players')}</div>
     <div style="display:flex;flex-wrap:wrap;gap:6px">${s.players.map(p=>'<span class="player-chip">'+p+'</span>').join('')}</div>`;
   document.getElementById('modalDeleteBtn').onclick=()=>deleteSession(id);
   document.getElementById('sessionModal').classList.add('open');
@@ -1151,7 +1472,7 @@ function toggleSessionEdit(){
   const isEditing=editEl.style.display!=='none';
   if(isEditing){
     editEl.style.display='none';viewEl.style.display='';
-    document.getElementById('modalEditToggle').textContent='Edit';
+    document.getElementById('modalEditToggle').textContent=t('modal.edit');
     return;
   }
   const playerChecks=state.players.map(p=>{
@@ -1160,23 +1481,23 @@ function toggleSessionEdit(){
       <div class="pcheck-dot"></div><span class="pcheck-name">${p}</span></div>`;
   }).join('');
   editEl.innerHTML=`
-    <div class="field"><label>Date</label><input type="date" id="editSessDate" value="${s.date}"></div>
+    <div class="field"><label>${t('add.date')}</label><input type="date" id="editSessDate" value="${s.date}"></div>
     <div class="field-row">
-      <div class="field"><label>Hours</label>
+      <div class="field"><label>${t('modal.hours')}</label>
         <select id="editSessHours">
           ${[1,1.5,2,2.5,3].map(h=>`<option value="${h}"${s.hours==h?' selected':''}>${h}h</option>`).join('')}
         </select>
       </div>
-      <div class="field"><label>Tickets/hr</label>
+      <div class="field"><label>${t('add.ticketsPerHour')}</label>
         <input type="number" id="editSessTph" value="${Math.round(s.tickets/s.hours)}" min="1">
       </div>
     </div>
-    <div class="field"><label>Who played?</label>
+    <div class="field"><label>${t('add.whoPlayed')}</label>
       <div class="player-checks" id="editPlayerChecks">${playerChecks}</div>
     </div>
-    <button class="btn btn-primary" onclick="saveSessionEdit('${s.id}')"><i class="ti ti-check" style="margin-right:6px"></i>Save changes</button>`;
+    <button class="btn btn-primary" onclick="saveSessionEdit('${s.id}')"><i class="ti ti-check" style="margin-right:6px"></i>${t('modal.saveChanges')}</button>`;
   editEl.style.display='';viewEl.style.display='none';
-  document.getElementById('modalEditToggle').textContent='Cancel';
+  document.getElementById('modalEditToggle').textContent=t('modal.cancel');
 }
 async function saveSessionEdit(id){
   const s=state.sessions.find(x=>x.id===id);if(!s)return;
@@ -1184,14 +1505,14 @@ async function saveSessionEdit(id){
   const hours=parseFloat(document.getElementById('editSessHours').value);
   const tph=parseInt(document.getElementById('editSessTph').value)||8;
   const players=[...document.querySelectorAll('.edit-pcheck.selected')].map(x=>x.dataset.player);
-  if(!date||!players.length){showToast('Pick a date and at least 1 player');return;}
+  if(!date||!players.length){showToast(t('toast.pickDateAndPlayer'));return;}
   const tickets=hours*tph,perPlayer=(tickets*currentTicketPrice())/players.length;
   s.date=date;s.hours=hours;s.tickets=tickets;s.players=players;s.perPlayer=perPlayer;
-  await saveState();closeModal();showToast('Session updated ✓');renderAll();
+  await saveState();closeModal();showToast(t('toast.sessionUpdated'));renderAll();
 }
 async function deleteSession(id){
   state.sessions=state.sessions.filter(x=>x.id!==id);
-  await saveState();closeModal();showToast('Deleted');renderAll();
+  await saveState();closeModal();showToast(t('toast.deleted'));renderAll();
 }
 function closeModal(){
   document.getElementById('sessionModal').classList.remove('open');
@@ -1218,51 +1539,51 @@ function openPlayerProfile(player){
   avatarEl.style.color=photo?'transparent':av.c;
   avatarEl.textContent=photo?'':initials(player);
   document.getElementById('playerModalName').textContent=player;
-  document.getElementById('playerModalSub').textContent=playerSessions.length+' sessions · €'+c.consumed.toFixed(2)+' played';
+  document.getElementById('playerModalSub').textContent=t('playerModal.sub',{n:playerSessions.length,amt:c.consumed.toFixed(2)});
 
   let html=`
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
       <div style="text-align:center;background:var(--surface);border-radius:10px;padding:10px">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:3px">Contributed</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:3px">${t('playerModal.contributed')}</div>
         <div style="font-size:17px;font-weight:700;color:var(--teal-600);font-family:'Newsreader',serif">€${c.contributed.toFixed(0)}</div>
       </div>
       <div style="text-align:center;background:var(--surface);border-radius:10px;padding:10px">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:3px">Consumed</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:3px">${t('playerModal.consumed')}</div>
         <div style="font-size:17px;font-weight:700;color:var(--amber);font-family:'Newsreader',serif">€${c.consumed.toFixed(0)}</div>
       </div>
       <div style="text-align:center;background:var(--surface);border-radius:10px;padding:10px">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:3px">Balance</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:3px">${t('playerModal.balance')}</div>
         <div style="font-size:17px;font-weight:700;color:${netCol};font-family:'Newsreader',serif">${c.net>0?'+':''}€${c.net.toFixed(0)}</div>
       </div>
     </div>`;
 
-  html+=`<div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--terra-600);margin-bottom:8px">Sessions played</div>`;
+  html+=`<div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--terra-600);margin-bottom:8px">${t('playerModal.sessionsPlayed')}</div>`;
   if(playerSessions.length){
     html+=playerSessions.map(s=>`
       <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
         <div style="flex:1">
           <div style="font-size:14px;font-weight:500">${fmtDate(s.date)}</div>
-          <div style="font-size:12px;color:var(--text3)">${s.hours}h · ${s.players.length} players · ${s.tickets} tickets</div>
+          <div style="font-size:12px;color:var(--text3)">${s.hours}h · ${s.players.length} ${t('session.players')} · ${s.tickets} tickets</div>
         </div>
         <div style="font-size:15px;font-weight:600;font-family:var(--mono);color:var(--amber)">€${s.perPlayer.toFixed(2)}</div>
       </div>`).join('');
   }else{
-    html+='<div style="font-size:13px;color:var(--text3);padding:8px 0">No sessions yet</div>';
+    html+='<div style="font-size:13px;color:var(--text3);padding:8px 0">'+t('playerModal.noSessionsYet')+'</div>';
   }
 
   const allContribs=[
-    ...bulkContrib.map(b=>({date:b.date,label:'Bulk purchase',amount:b.amount,type:'bulk'})),
-    ...playerTopups.map(t=>({date:t.date,label:t.note||'Top-up',amount:t.amount,type:'topup'}))
+    ...bulkContrib.map(b=>({date:b.date,label:t('playerModal.bulkPurchase'),amount:b.amount,type:'bulk'})),
+    ...playerTopups.map(tp=>({date:tp.date,label:tp.note||t('playerModal.topup'),amount:tp.amount,type:'topup'}))
   ].sort((a,b)=>b.date.localeCompare(a.date));
 
   if(allContribs.length){
-    html+=`<div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--terra-600);margin:14px 0 8px">Pocket contributions</div>`;
+    html+=`<div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--terra-600);margin:14px 0 8px">${t('playerModal.pocketContributions')}</div>`;
     html+=allContribs.map(e=>`
       <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
         <div style="width:8px;height:8px;border-radius:50%;background:${e.type==='bulk'?'var(--blue)':'var(--teal-600)'};flex-shrink:0"></div>
         <div style="flex:1">
           <div style="font-size:14px;font-weight:500">${e.label}</div>
-          <div style="font-size:12px;color:var(--text3)">${fmtDate(e.date)} · ${e.type==='bulk'?'bulk share':'direct top-up'}</div>
+          <div style="font-size:12px;color:var(--text3)">${fmtDate(e.date)} · ${e.type==='bulk'?t('playerModal.bulkShare'):t('playerModal.directTopup')}</div>
         </div>
         <div style="font-size:15px;font-weight:600;font-family:var(--mono);color:var(--teal-600)">+€${e.amount.toFixed(2)}</div>
       </div>`).join('');
@@ -1278,7 +1599,7 @@ function handlePhotoSelected(e){
   const file=e.target.files[0];
   e.target.value=''; // allow re-selecting the same file later
   if(!file||!_currentProfilePlayer)return;
-  if(!file.type.startsWith('image/')){showToast('Please choose an image');return;}
+  if(!file.type.startsWith('image/')){showToast(t('toast.chooseImage'));return;}
   const reader=new FileReader();
   reader.onload=function(ev){
     const img=new Image();
@@ -1294,18 +1615,18 @@ function handlePhotoSelected(e){
       const dataUrl=canvas.toDataURL('image/jpeg',0.72);
       savePlayerPhoto(_currentProfilePlayer,dataUrl);
     };
-    img.onerror=function(){showToast('Could not read that image');};
+    img.onerror=function(){showToast(t('toast.couldNotReadImage'));};
     img.src=ev.target.result;
   };
-  reader.onerror=function(){showToast('Could not read that file');};
+  reader.onerror=function(){showToast(t('toast.couldNotReadFile'));};
   reader.readAsDataURL(file);
 }
 async function savePlayerPhoto(player,dataUrl){
   if(!state.playerPhotos)state.playerPhotos={};
   state.playerPhotos[player]=dataUrl;
-  showToast('Saving photo…');
+  showToast(t('toast.photoSaving'));
   await saveState();
-  showToast('Photo updated ✓');
+  showToast(t('toast.photoUpdated'));
   openPlayerProfile(player);
   renderDashboard();
   if(document.getElementById('panel-players').classList.contains('active'))renderPlayers();
@@ -1314,13 +1635,13 @@ async function savePlayerPhoto(player,dataUrl){
 function openBulkModal(id){
   const b=state.bulks.find(x=>x.id===id);if(!b)return;
   const payerRows=Object.entries(b.payers).map(([p,v])=>'<div class="info-row"><span>'+p+'</span><span>€'+v.toFixed(2)+'</span></div>').join('');
-  document.getElementById('bulkModalTitle').textContent='Bulk · '+fmtDate(b.date);
+  document.getElementById('bulkModalTitle').textContent=t('bulkModal.titleWithDate',{date:fmtDate(b.date)});
   document.getElementById('bulkModalContent').innerHTML=`
-    <div class="info-row"><span>Date</span><span><input type="date" id="editBulkDate" value="${b.date}" style="border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;color:var(--text);background:var(--card)"></span></div>
-    <div class="info-row"><span>Tickets</span><span><input type="number" id="editBulkTickets" value="${b.totalTickets}" min="1" style="width:70px;border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;text-align:right"></span></div>
-    <div class="info-row"><span>Cost (€)</span><span><input type="number" id="editBulkCost" value="${b.totalCost}" min="0" step="0.01" style="width:80px;border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;text-align:right"></span></div>
-    <div style="margin-top:12px;font-size:13px;color:var(--text3);margin-bottom:6px;font-weight:500">Payers</div>${payerRows}
-    <button class="btn btn-primary" style="margin-top:12px" onclick="saveBulkEdit('${id}')"><i class="ti ti-check" style="margin-right:6px"></i>Save changes</button>`;
+    <div class="info-row"><span>${t('bulkModal.date')}</span><span><input type="date" id="editBulkDate" value="${b.date}" style="border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;color:var(--text);background:var(--card)"></span></div>
+    <div class="info-row"><span>${t('bulkModal.tickets')}</span><span><input type="number" id="editBulkTickets" value="${b.totalTickets}" min="1" style="width:70px;border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;text-align:right"></span></div>
+    <div class="info-row"><span>${t('bulkModal.cost')}</span><span><input type="number" id="editBulkCost" value="${b.totalCost}" min="0" step="0.01" style="width:80px;border:1px solid var(--border);border-radius:6px;padding:3px 7px;font-size:13px;text-align:right"></span></div>
+    <div style="margin-top:12px;font-size:13px;color:var(--text3);margin-bottom:6px;font-weight:500">${t('bulkModal.payers')}</div>${payerRows}
+    <button class="btn btn-primary" style="margin-top:12px" onclick="saveBulkEdit('${id}')"><i class="ti ti-check" style="margin-right:6px"></i>${t('bulkModal.saveChanges')}</button>`;
   document.getElementById('bulkModalDeleteBtn').onclick=()=>deleteBulk(id);
   document.getElementById('bulkModal').classList.add('open');
 }
@@ -1329,32 +1650,32 @@ async function saveBulkEdit(id){
   const date=document.getElementById('editBulkDate').value;
   const tickets=parseInt(document.getElementById('editBulkTickets').value);
   const cost=parseFloat(document.getElementById('editBulkCost').value);
-  if(!date||!tickets||!cost){showToast('Fill in all fields');return;}
+  if(!date||!tickets||!cost){showToast(t('toast.fillAllFields'));return;}
   b.date=date;b.totalTickets=tickets;b.totalCost=cost;b.ticketPrice=cost/tickets;
-  await saveState();closeBulkModal();showToast('Bulk updated ✓');renderAll();
+  await saveState();closeBulkModal();showToast(t('toast.bulkUpdated'));renderAll();
 }
 async function deleteBulk(id){
-  if(state.bulks.length===1){showToast('Cannot delete only bulk');return;}
+  if(state.bulks.length===1){showToast(t('toast.cannotDeleteOnlyBulk'));return;}
   state.bulks=state.bulks.filter(x=>x.id!==id);
-  await saveState();closeBulkModal();showToast('Deleted');renderAll();
+  await saveState();closeBulkModal();showToast(t('toast.deleted'));renderAll();
 }
 function closeBulkModal(){document.getElementById('bulkModal').classList.remove('open')}
 
 function openTopupModal(){
   const topups=[...(state.topups||[])].sort((a,b)=>b.date.localeCompare(a.date));
-  document.getElementById('topupModalContent').innerHTML=topups.length?topups.map(t=>`
+  document.getElementById('topupModalContent').innerHTML=topups.length?topups.map(tu=>`
     <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="flex:1"><div style="font-size:14px;font-weight:500">${t.player}</div>
-      <div style="font-size:12px;color:var(--text3)">${fmtDate(t.date)}${t.note?' · '+t.note:''}</div></div>
-      <div style="font-size:15px;font-weight:600;color:var(--green);font-family:var(--mono)">€${t.amount.toFixed(2)}</div>
-      <button onclick="deleteTopup('${t.id}')" style="background:none;border:none;cursor:pointer;color:var(--danger);padding:4px;font-size:16px"><i class="ti ti-trash"></i></button>
-    </div>`).join(''):'<div class="empty" style="padding:20px 0"><i class="ti ti-piggy-bank"></i><div class="empty-text">No top-ups yet</div></div>';
+      <div style="flex:1"><div style="font-size:14px;font-weight:500">${tu.player}</div>
+      <div style="font-size:12px;color:var(--text3)">${fmtDate(tu.date)}${tu.note?' · '+tu.note:''}</div></div>
+      <div style="font-size:15px;font-weight:600;color:var(--green);font-family:var(--mono)">€${tu.amount.toFixed(2)}</div>
+      <button onclick="deleteTopup('${tu.id}')" style="background:none;border:none;cursor:pointer;color:var(--danger);padding:4px;font-size:16px"><i class="ti ti-trash"></i></button>
+    </div>`).join(''):'<div class="empty" style="padding:20px 0"><i class="ti ti-piggy-bank"></i><div class="empty-text">'+t('topupModal.noneYet')+'</div></div>';
   document.getElementById('topupModal').classList.add('open');
 }
 function closeTopupModal(){document.getElementById('topupModal').classList.remove('open')}
 async function deleteTopup(id){
-  state.topups=(state.topups||[]).filter(t=>t.id!==id);
-  await saveState();openTopupModal();showToast('Deleted');renderAll();
+  state.topups=(state.topups||[]).filter(x=>x.id!==id);
+  await saveState();openTopupModal();showToast(t('toast.deleted'));renderAll();
 }
 
 // ============ NAVIGATION ============
@@ -1385,10 +1706,11 @@ document.getElementById('playerModal').addEventListener('click',e=>{if(e.target=
 // ============ BOOT ============
 function startAppAfterAuth(){
   if(currentPlayerName){
-    document.getElementById('headerSub').textContent='Hi, '+currentPlayerName+' · Split payments, no drama';
+    document.getElementById('headerSub').textContent=t('header.greeting',{name:currentPlayerName});
   }
   initApp();
 }
+applyI18n();
 tryRestoreSession();
 
 </script>
