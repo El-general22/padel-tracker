@@ -185,104 +185,261 @@
 
 
 <style>
-#pinScreen{
+#authScreen{
   position:fixed;inset:0;z-index:99999;
   background:linear-gradient(160deg,var(--teal-900) 0%,var(--teal-600) 60%,#4A96A8 100%);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-family:'DM Sans',sans-serif;padding:32px;
+  font-family:'Public Sans',sans-serif;padding:28px;
 }
-#pinScreen .pin-logo{font-size:56px;margin-bottom:8px}
-#pinScreen .pin-title{font-size:24px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-0.5px}
-#pinScreen .pin-sub{font-size:14px;color:rgba(255,255,255,0.65);margin-bottom:36px}
-#pinScreen .pin-dots{display:flex;gap:14px;margin-bottom:28px}
-#pinScreen .pin-dot{
-  width:16px;height:16px;border-radius:50%;
-  border:2px solid rgba(255,255,255,0.5);background:transparent;transition:.2s;
+#authScreen .auth-logo{font-size:48px;margin-bottom:6px}
+#authScreen .auth-title{font-size:22px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-0.3px;font-family:'Newsreader',serif}
+#authScreen .auth-subtitle{font-size:13px;color:rgba(255,255,255,0.68);margin-bottom:26px;text-align:center}
+#authScreen .auth-card{width:100%;max-width:340px}
+#authScreen .auth-tabs{display:flex;background:rgba(255,255,255,0.12);border-radius:12px;padding:4px;margin-bottom:18px}
+#authScreen .auth-tab{flex:1;padding:9px;border:none;background:none;border-radius:9px;color:rgba(255,255,255,0.65);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+#authScreen .auth-tab.active{background:#fff;color:var(--teal-900)}
+#authScreen input,#authScreen select{
+  width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.25);
+  background:rgba(255,255,255,0.1);color:#fff;font-family:var(--font);font-size:14px;
+  margin-bottom:10px;outline:none;transition:.15s;
 }
-#pinScreen .pin-dot.filled{background:#fff;border-color:#fff}
-#pinScreen .pin-dot.error{background:#ff6b6b;border-color:#ff6b6b}
-#pinScreen .pin-pad{display:grid;grid-template-columns:repeat(3,72px);gap:12px}
-#pinScreen .pin-btn{
-  width:72px;height:72px;border-radius:50%;border:none;
-  background:rgba(255,255,255,0.15);color:#fff;
-  font-size:22px;font-weight:500;font-family:'DM Sans',sans-serif;
-  cursor:pointer;transition:.15s;backdrop-filter:blur(4px);
+#authScreen input::placeholder{color:rgba(255,255,255,0.55)}
+#authScreen input:focus,#authScreen select:focus{border-color:#fff;background:rgba(255,255,255,0.16)}
+#authScreen select option{color:#1E1A16}
+#authScreen .auth-btn{
+  width:100%;padding:13px;border-radius:12px;border:none;background:#fff;color:var(--teal-900);
+  font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:.15s;margin-top:4px;
 }
-#pinScreen .pin-btn:active{background:rgba(255,255,255,0.35);transform:scale(0.95)}
-#pinScreen .pin-btn.pin-del{font-size:18px;background:rgba(255,255,255,0.08)}
-#pinScreen .pin-error{color:#ff9999;font-size:13px;margin-top:8px;min-height:18px;transition:.2s}
+#authScreen .auth-btn:active{transform:scale(0.98)}
+#authScreen .auth-link{text-align:center;font-size:12.5px;color:rgba(255,255,255,0.7);margin-top:14px;cursor:pointer;text-decoration:underline}
+#authScreen .auth-error{min-height:18px;font-size:12.5px;color:#ffb3b3;text-align:center;margin-top:10px}
 </style>
 
-<div id="pinScreen">
-  <div class="pin-logo">🎾</div>
-  <div class="pin-title">Padel Tracker</div>
-  <div class="pin-sub">Enter PIN to continue</div>
-  <div class="pin-dots">
-    <div class="pin-dot" id="d0"></div>
-    <div class="pin-dot" id="d1"></div>
-    <div class="pin-dot" id="d2"></div>
-    <div class="pin-dot" id="d3"></div>
+<div id="authScreen">
+  <div class="auth-logo">🎾</div>
+  <div class="auth-title">Padel Tracker</div>
+  <div class="auth-subtitle" id="authSubtitle">Log in to continue</div>
+  <div class="auth-card">
+    <div class="auth-tabs" id="authTabs">
+      <button class="auth-tab active" id="tabLogin" onclick="showAuthForm('login')">Log in</button>
+      <button class="auth-tab" id="tabSignup" onclick="showAuthForm('signup')">Sign up</button>
+    </div>
+
+    <div id="authFormLogin">
+      <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
+      <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+      <button class="auth-btn" onclick="doLogin()">Log in</button>
+      <div class="auth-link" onclick="doForgotPassword()">Forgot password?</div>
+    </div>
+
+    <div id="authFormSignup" style="display:none">
+      <select id="signupPlayerSelect" onchange="toggleSignupNewName()"><option>Loading players…</option></select>
+      <input type="text" id="signupNewName" placeholder="Your name" style="display:none">
+      <input type="email" id="signupEmail" placeholder="Email" autocomplete="email">
+      <input type="password" id="signupPassword" placeholder="Password (min 6 characters)" autocomplete="new-password">
+      <button class="auth-btn" onclick="doSignup()">Create account</button>
+    </div>
+
+    <div id="authFormLink" style="display:none">
+      <select id="linkPlayerSelect" onchange="toggleLinkNewName()"><option>Loading players…</option></select>
+      <input type="text" id="linkNewName" placeholder="Your name" style="display:none">
+      <button class="auth-btn" onclick="confirmAccountLink()">Continue</button>
+    </div>
+
+    <div class="auth-error" id="authError"></div>
   </div>
-  <div class="pin-pad">
-    <button class="pin-btn" onclick="pinPress('1')">1</button>
-    <button class="pin-btn" onclick="pinPress('2')">2</button>
-    <button class="pin-btn" onclick="pinPress('3')">3</button>
-    <button class="pin-btn" onclick="pinPress('4')">4</button>
-    <button class="pin-btn" onclick="pinPress('5')">5</button>
-    <button class="pin-btn" onclick="pinPress('6')">6</button>
-    <button class="pin-btn" onclick="pinPress('7')">7</button>
-    <button class="pin-btn" onclick="pinPress('8')">8</button>
-    <button class="pin-btn" onclick="pinPress('9')">9</button>
-    <button class="pin-btn" style="visibility:hidden"></button>
-    <button class="pin-btn" onclick="pinPress('0')">0</button>
-    <button class="pin-btn pin-del" onclick="pinDel()">⌫</button>
-  </div>
-  <div class="pin-error" id="pinError"></div>
 </div>
 
 <script>
-// ── PIN LOCK ────────────────────────────────────────────────────────────────
-const CORRECT_PIN = '2358';  // ← change this to your group's PIN
-const PIN_SESSION_KEY = 'padel_pin_ok';
-let pinEntry = '';
+// ── FIREBASE AUTH (email + password, replaces the old shared PIN) ──────────
+const FIREBASE_API_KEY='AIzaSyCjR7qxzp_uQfVTX4JyQaG7DpOXlvlWxro';
+const AUTH_BASE='https://identitytoolkit.googleapis.com/v1/accounts';
+const TOKEN_BASE='https://securetoken.googleapis.com/v1/token';
+const AUTH_STORAGE_KEY='padel_auth_v1';
 
-// Check if already authenticated this session
-if(sessionStorage.getItem(PIN_SESSION_KEY)==='1'){
-  document.getElementById('pinScreen').style.display='none';
+let currentPlayerName=null;
+let authUid=null;
+let _pendingAuthData=null;
+let _signupPlayersLoaded=false;
+
+function saveAuthSession(data){try{localStorage.setItem(AUTH_STORAGE_KEY,JSON.stringify(data));}catch(e){}}
+function getAuthSession(){try{return JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY));}catch(e){return null;}}
+function clearAuthSession(){try{localStorage.removeItem(AUTH_STORAGE_KEY);}catch(e){}}
+
+async function authRequest(endpoint,body){
+  const r=await fetch(AUTH_BASE+':'+endpoint+'?key='+FIREBASE_API_KEY,{
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+  });
+  const data=await r.json();
+  if(!r.ok){throw new Error((data.error&&data.error.message)||'Something went wrong');}
+  return data;
+}
+function friendlyAuthError(msg){
+  if(msg.includes('EMAIL_EXISTS'))return'An account with that email already exists — try logging in instead.';
+  if(msg.includes('EMAIL_NOT_FOUND'))return'No account found with that email.';
+  if(msg.includes('INVALID_PASSWORD')||msg.includes('INVALID_LOGIN_CREDENTIALS'))return'Incorrect email or password.';
+  if(msg.includes('WEAK_PASSWORD'))return'Password must be at least 6 characters.';
+  if(msg.includes('INVALID_EMAIL'))return'Please enter a valid email address.';
+  if(msg.includes('TOO_MANY_ATTEMPTS_TRY_LATER'))return'Too many attempts — please wait a bit and try again.';
+  return msg;
+}
+function showAuthError(msg,isInfo){
+  const el=document.getElementById('authError');
+  el.textContent=msg;
+  el.style.color=isInfo?'#cfe8ee':'#ffb3b3';
 }
 
-function pinPress(digit){
-  if(pinEntry.length>=4) return;
-  pinEntry += digit;
-  updateDots();
-  if(pinEntry.length===4) setTimeout(checkPin, 120);
+// Minimal Realtime Database helpers, independent of the main app's fbGet/fbSet
+// (those are defined later in the main script, but these need to run first)
+const AUTH_FIREBASE_URL='https://padel-tracker-deeaf-default-rtdb.europe-west1.firebasedatabase.app';
+async function authFbGet(path){
+  try{const r=await fetch(AUTH_FIREBASE_URL+path+'.json');return r.ok?r.json():null;}catch(e){return null;}
+}
+async function authFbSet(path,data){
+  try{await fetch(AUTH_FIREBASE_URL+path+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}catch(e){}
+}
+function toPlayerList(raw){
+  if(!raw)return[];
+  return(Array.isArray(raw)?raw:Object.values(raw)).filter(p=>typeof p==='string');
 }
 
-function pinDel(){
-  pinEntry = pinEntry.slice(0,-1);
-  updateDots();
-  document.getElementById('pinError').textContent='';
+function showAuthForm(mode){
+  document.getElementById('authFormLogin').style.display=mode==='login'?'block':'none';
+  document.getElementById('authFormSignup').style.display=mode==='signup'?'block':'none';
+  document.getElementById('authFormLink').style.display=mode==='link'?'block':'none';
+  document.getElementById('authTabs').style.display=mode==='link'?'none':'flex';
+  document.getElementById('authSubtitle').textContent=mode==='link'?'Almost there — which player are you?':'Log in to continue';
+  if(mode==='login'||mode==='signup'){
+    document.getElementById('tabLogin').classList.toggle('active',mode==='login');
+    document.getElementById('tabSignup').classList.toggle('active',mode==='signup');
+  }
+  document.getElementById('authError').textContent='';
+  if(mode==='signup')populateSignupPlayerList();
 }
 
-function updateDots(){
-  for(let i=0;i<4;i++){
-    const d=document.getElementById('d'+i);
-    d.classList.toggle('filled', i<pinEntry.length);
-    d.classList.remove('error');
+async function populateSignupPlayerList(){
+  if(_signupPlayersLoaded)return;
+  const sel=document.getElementById('signupPlayerSelect');
+  const list=toPlayerList(await authFbGet('/state/players'));
+  sel.innerHTML=list.map(p=>'<option value="'+p+'">'+p+'</option>').join('')+'<option value="__other__">+ My name isn\'t listed</option>';
+  _signupPlayersLoaded=true;
+  toggleSignupNewName();
+}
+function toggleSignupNewName(){
+  document.getElementById('signupNewName').style.display=document.getElementById('signupPlayerSelect').value==='__other__'?'block':'none';
+}
+async function populateLinkPlayerList(){
+  const sel=document.getElementById('linkPlayerSelect');
+  const list=toPlayerList(await authFbGet('/state/players'));
+  sel.innerHTML=list.map(p=>'<option value="'+p+'">'+p+'</option>').join('')+'<option value="__other__">+ My name isn\'t listed</option>';
+  toggleLinkNewName();
+}
+function toggleLinkNewName(){
+  document.getElementById('linkNewName').style.display=document.getElementById('linkPlayerSelect').value==='__other__'?'block':'none';
+}
+
+async function linkAccountToPlayer(uid,name){
+  const accounts=(await authFbGet('/state/playerAccounts'))||{};
+  accounts[uid]=name;
+  await authFbSet('/state/playerAccounts',accounts);
+}
+async function lookupPlayerForUid(uid){
+  const accounts=await authFbGet('/state/playerAccounts');
+  return accounts?accounts[uid]:null;
+}
+async function ensurePlayerExists(name){
+  const list=toPlayerList(await authFbGet('/state/players'));
+  if(!list.includes(name)){
+    list.push(name);
+    await authFbSet('/state/players',list);
   }
 }
 
-function checkPin(){
-  if(pinEntry===CORRECT_PIN){
-    sessionStorage.setItem(PIN_SESSION_KEY,'1');
-    const screen=document.getElementById('pinScreen');
-    screen.style.transition='opacity .3s';
-    screen.style.opacity='0';
-    setTimeout(()=>screen.style.display='none',300);
-  } else {
-    for(let i=0;i<4;i++) document.getElementById('d'+i).classList.add('error');
-    document.getElementById('pinError').textContent='Wrong PIN, try again';
-    setTimeout(()=>{ pinEntry=''; updateDots(); document.getElementById('pinError').textContent=''; },900);
+async function doSignup(){
+  const sel=document.getElementById('signupPlayerSelect');
+  const chosenName=sel.value==='__other__'?document.getElementById('signupNewName').value.trim():sel.value;
+  const email=document.getElementById('signupEmail').value.trim();
+  const password=document.getElementById('signupPassword').value;
+  if(!chosenName){showAuthError('Please pick or enter your name');return;}
+  if(!email||!password){showAuthError('Please fill in email and password');return;}
+  try{
+    const data=await authRequest('signUp',{email,password,returnSecureToken:true});
+    if(sel.value==='__other__')await ensurePlayerExists(chosenName);
+    await linkAccountToPlayer(data.localId,chosenName);
+    finishLogin(data,chosenName);
+  }catch(e){showAuthError(friendlyAuthError(e.message));}
+}
+async function doLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  if(!email||!password){showAuthError('Please fill in email and password');return;}
+  try{
+    const data=await authRequest('signInWithPassword',{email,password,returnSecureToken:true});
+    const name=await lookupPlayerForUid(data.localId);
+    if(!name){
+      _pendingAuthData=data;
+      await populateLinkPlayerList();
+      showAuthForm('link');
+      return;
+    }
+    finishLogin(data,name);
+  }catch(e){showAuthError(friendlyAuthError(e.message));}
+}
+async function confirmAccountLink(){
+  const sel=document.getElementById('linkPlayerSelect');
+  const chosenName=sel.value==='__other__'?document.getElementById('linkNewName').value.trim():sel.value;
+  if(!chosenName){showAuthError('Please pick or enter your name');return;}
+  if(!_pendingAuthData)return;
+  if(sel.value==='__other__')await ensurePlayerExists(chosenName);
+  await linkAccountToPlayer(_pendingAuthData.localId,chosenName);
+  finishLogin(_pendingAuthData,chosenName);
+}
+async function doForgotPassword(){
+  const email=document.getElementById('loginEmail').value.trim();
+  if(!email){showAuthError('Enter your email above first, then tap "Forgot password?"');return;}
+  try{
+    await authRequest('sendOobCode',{requestType:'PASSWORD_RESET',email});
+    showAuthError('If that email has an account, a reset link was just sent.',true);
+  }catch(e){showAuthError(friendlyAuthError(e.message));}
+}
+
+function finishLogin(authData,playerName){
+  currentPlayerName=playerName;
+  authUid=authData.localId;
+  saveAuthSession({
+    uid:authData.localId,email:authData.email,idToken:authData.idToken,
+    refreshToken:authData.refreshToken,
+    expiresAt:Date.now()+(parseInt(authData.expiresIn||'3600',10)*1000),
+    playerName
+  });
+  document.getElementById('authScreen').style.display='none';
+  startAppAfterAuth();
+}
+function logout(){clearAuthSession();location.reload();}
+
+async function refreshIdToken(refreshToken){
+  const r=await fetch(TOKEN_BASE+'?key='+FIREBASE_API_KEY,{
+    method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'grant_type=refresh_token&refresh_token='+encodeURIComponent(refreshToken)
+  });
+  if(!r.ok)throw new Error('refresh failed');
+  const data=await r.json();
+  const sess=getAuthSession()||{};
+  sess.idToken=data.id_token;sess.refreshToken=data.refresh_token;
+  sess.expiresAt=Date.now()+(parseInt(data.expires_in||'3600',10)*1000);
+  saveAuthSession(sess);
+}
+
+function tryRestoreSession(){
+  const sess=getAuthSession();
+  if(sess&&sess.playerName){
+    currentPlayerName=sess.playerName;
+    authUid=sess.uid;
+    document.getElementById('authScreen').style.display='none';
+    startAppAfterAuth();
+    if(sess.refreshToken)refreshIdToken(sess.refreshToken).catch(()=>{});
+  }else{
+    showAuthForm('login');
   }
 }
 </script>
@@ -297,11 +454,16 @@ function checkPin(){
   <div class="header-top">
     <div>
       <div class="header-title">Padel Tracker 🎾</div>
-      <div class="header-sub">Split payments, no drama</div>
+      <div class="header-sub" id="headerSub">Split payments, no drama</div>
     </div>
-    <div class="ticket-pill" id="ticketPill">
-      <i class="ti ti-ticket"></i>
-      <span id="ticketRemaining">--</span> left
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="ticket-pill" id="ticketPill">
+        <i class="ti ti-ticket"></i>
+        <span id="ticketRemaining">--</span> left
+      </div>
+      <button onclick="logout()" aria-label="Log out" style="background:rgba(255,255,255,0.18);border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:14px;flex-shrink:0">
+        <i class="ti ti-logout"></i>
+      </button>
     </div>
   </div>
 </div>
@@ -809,7 +971,7 @@ function renderSessions(){
 // ============ RENDER: ADD PANEL ============
 function renderAdd(){
   document.getElementById('sessionPlayers').innerHTML=state.players.map(p=>`
-    <div class="pcheck" onclick="togglePlayer(this,'${p}','sp')" data-player="${p}">
+    <div class="pcheck${p===currentPlayerName?' selected':''}" onclick="togglePlayer(this,'${p}','sp')" data-player="${p}">
       <div class="pcheck-dot"></div><span class="pcheck-name">${p}</span>
     </div>`).join('');
   document.getElementById('bulkPayers').innerHTML=state.players.map(p=>`
@@ -820,7 +982,7 @@ function renderAdd(){
   document.getElementById('sessionDate').value=today;
   document.getElementById('bulkDate').value=today;
   document.getElementById('topupDate').value=today;
-  document.getElementById('topupPlayer').innerHTML=state.players.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+  document.getElementById('topupPlayer').innerHTML=state.players.map(p=>'<option value="'+p+'"'+(p===currentPlayerName?' selected':'')+'>'+p+'</option>').join('');
   document.getElementById('ticketPoolInfo').innerHTML=ticketsRemaining()+' tickets in pool · €'+latestTicketPrice().toFixed(2)+' each';
   updateSessionPreview();updateBulkAmounts();updateBulkPreview();
 }
@@ -1221,7 +1383,13 @@ document.getElementById('topupModal').addEventListener('click',e=>{if(e.target==
 document.getElementById('playerModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closePlayerModal()});
 
 // ============ BOOT ============
-initApp();
+function startAppAfterAuth(){
+  if(currentPlayerName){
+    document.getElementById('headerSub').textContent='Hi, '+currentPlayerName+' · Split payments, no drama';
+  }
+  initApp();
+}
+tryRestoreSession();
 
 </script>
 </body>
