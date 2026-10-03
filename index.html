@@ -594,7 +594,7 @@ function normaliseState(raw){
   s.bulks   =toArr(s.bulks);
   s.sessions=toArr(s.sessions).map(sess=>({...sess,players:toArr(sess.players).filter(p=>typeof p==='string')}));
   s.topups  =toArr(s.topups);
-  s.bulks=s.bulks.map(b=>({...b,ticketPrice:b.ticketPrice||b.totalCost/b.totalTickets}));
+  s.bulks=s.bulks.map(b=>({...b,payers:b.payers||{},ticketPrice:b.ticketPrice||b.totalCost/b.totalTickets}));
   return s;
 }
 
