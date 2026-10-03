@@ -490,12 +490,22 @@ function checkPin(){
 <div class="modal-bg" id="playerModal">
   <div class="modal" style="max-height:92vh">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
-      <div class="avatar" id="playerModalAvatar" style="width:44px;height:44px;font-size:16px"></div>
-      <div>
-        <div style="font-size:19px;font-weight:700;letter-spacing:-0.3px;font-family:'Newsreader',serif" id="playerModalName"></div>
-        <div style="font-size:13px;color:var(--text3)" id="playerModalSub"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="position:relative;width:56px;height:56px;flex-shrink:0">
+          <div class="avatar" id="playerModalAvatar" style="width:56px;height:56px;font-size:19px;background-size:cover;background-position:center"></div>
+          <div style="position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;border-radius:50%;background:var(--card);border:2px solid var(--card);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)">
+            <i class="ti ti-camera" style="font-size:11px;color:var(--text3)"></i>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:19px;font-weight:700;letter-spacing:-0.3px;font-family:'Newsreader',serif" id="playerModalName"></div>
+          <div style="font-size:13px;color:var(--text3)" id="playerModalSub"></div>
+        </div>
       </div>
+      <button onclick="closePlayerModal()" aria-label="Close" style="background:var(--surface);border:none;border-radius:50%;width:30px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:14px">
+        <i class="ti ti-x"></i>
+      </button>
     </div>
     <div id="playerModalContent"></div>
     <button class="btn btn-outline" onclick="closePlayerModal()" style="margin-top:8px">Close</button>
